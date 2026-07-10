@@ -1,0 +1,920 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #4cc9f0;
+  --secondary: #4361ee;
+  --accent: #ff006e;
+  --text: #f8f9fa;
+  --bg: #1a1a2e;
+  --card-bg: #16213e;
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-text: var(--text);
+  --color-bg: var(--bg);
+  --color-card-bg: var(--card-bg);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Mengatur jarak lompatan scroll agar presisi di bawah batas navbar baru */
+section[id] {
+    scroll-margin-top: 20px; /* Karena navbar dipindah ke bawah, posisi atas bisa mepet sempurna 20px */
+}
+
+#home {
+    padding-top: 0px !important;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+}
+
+.container {
+    padding-left: max(2rem, 6vw) !important;
+    padding-right: max(2rem, 6vw) !important;
+}
+
+@media (min-width: 1024px) {
+    .container {
+        padding-left: max(4rem, 8vw) !important;
+        padding-right: max(4rem, 8vw) !important;
+    }
+}
+
+/* ==========================================================================
+   2. GLOBAL GRAPHICS & REUSABLE COMPONENTS
+   ========================================================================== */
+.gradient-text {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+/* Base Card Setup - Dioptimalkan untuk mencegah tabrakan interaksi 3D tilt */
+.card {
+    background-color: var(--card-bg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    will-change: transform;
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.card:hover {
+    box-shadow: 0 20px 35px rgba(76, 201, 240, 0.08);
+    border-color: rgba(76, 201, 240, 0.2);
+}
+
+.skill-pill {
+    background-color: rgba(76, 201, 240, 0.06);
+    border: 1px solid rgba(76, 201, 240, 0.2);
+    transition: all 0.25s ease;
+}
+
+.skill-pill:hover {
+    background-color: rgba(76, 201, 240, 0.15);
+    border-color: var(--primary);
+}
+
+/* ==========================================================================
+   3. PREMIUM BOTTOM FLOATING DOCK NAVBAR
+   ========================================================================== */
+.nav-dock-link {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94a3b8;
+    border-radius: 8px;
+    white-space: nowrap;
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-dock-link:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Penanda aktif sederhana tanpa garis bawah, menjaga estetika minimalis dock awwwards */
+.nav-dock-link:active {
+    transform: scale(0.95);
+}
+
+/* Modifikasi tombol bahasa agar berukuran kompak di dalam dock */
+.language-toggle {
+    display: flex;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 2px;
+}
+
+.language-toggle button {
+    padding: 4px 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 700;
+    font-size: 0.75rem;
+    border-radius: 6px;
+}
+
+.language-toggle button.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--primary);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.language-toggle button:hover:not(.active) {
+    color: #ffffff;
+}
+
+/* Modifikasi animasi menu mobile agar muncul melayang ke atas */
+#mobile-menu {
+    animation: slideUpNav 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpNav {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   4. BRUTALIST TYPOGRAPHIC HERO SECTION
+   ========================================================================== */
+.giant-bg-text {
+    position: absolute;
+    font-size: clamp(3.8rem, 14vw, 11rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: rgba(76, 201, 240, 0.06);
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: center;
+    z-index: 1;
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    pointer-events: none;
+}
+
+.hero-center-photo {
+    position: relative;
+    z-index: 5;
+    width: 240px;
+    height: 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .hero-center-photo {
+        width: 310px;
+        height: 430px;
+    }
+}
+
+.hero-slideshow {
+    width: 100%;
+    height: 100%;
+    border-radius: 24px !important;
+    border: 4px solid var(--card-bg) !important;
+    overflow: hidden;
+    box-shadow: 0 25px 55px rgba(0, 0, 0, 0.35);
+    position: relative;
+}
+
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.9s ease-in-out;
+}
+
+.hero-slide.active {
+    opacity: 1;
+}
+
+.hero-slide-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0 !important;
+    display: block;
+}
+
+.hero-role-pill {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(76, 201, 240, 0.25);
+    color: var(--primary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+}
+
+.cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(76, 201, 240, 0.25);
+}
+
+.cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(76, 201, 240, 0.45);
+}
+
+.cta-primary i {
+    transition: transform 0.3s ease;
+}
+
+.cta-primary:hover i {
+    transform: translateX(4px);
+}
+
+.cta-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cta-ghost:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   5. PREMIUM DASHBOARD SKILLS BENTO GRID
+   ========================================================================== */
+.skills-bento {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+}
+
+.bento-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    padding: 32px;
+    background: linear-gradient(145deg, var(--card-bg), rgba(22, 33, 62, 0.7));
+    border: 1px solid rgba(76, 201, 240, 0.06);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+    cursor: default;
+}
+
+.bento-card:hover {
+    transform: translateY(-8px) scale(1.005);
+    border-color: rgba(76, 201, 240, 0.25);
+    box-shadow: 0 20px 40px rgba(76, 201, 240, 0.05);
+}
+
+.bento-glow {
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(76, 201, 240, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    top: 0;
+    left: 0;
+}
+
+.bento-card:hover .bento-glow {
+    opacity: 1;
+}
+
+.bento-lg {
+    grid-column: span 3;
+}
+
+.bento-md {
+    grid-column: span 3;
+}
+
+@media (max-width: 1024px) {
+    .bento-lg {
+        grid-column: span 6;
+    }
+
+    .bento-md {
+        grid-column: span 3;
+    }
+}
+
+@media (max-width: 640px) {
+    .skills-bento {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .bento-lg,
+    .bento-md {
+        grid-column: span 1;
+    }
+}
+
+.bento-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.bento-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    box-shadow: 0 6px 16px rgba(67, 97, 238, 0.25);
+}
+
+.bento-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.bpill {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 15px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    background: rgba(76, 201, 240, 0.04);
+    border: 1px solid rgba(76, 201, 240, 0.12);
+    color: #e2e8f0;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.4s ease var(--d, 0s), transform 0.4s ease var(--d, 0s), background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.bento-card.pills-visible .bpill {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.bpill i {
+    color: var(--primary);
+    transition: transform 0.25s ease;
+}
+
+.bpill:hover {
+    background: rgba(76, 201, 240, 0.15);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.bpill:hover i {
+    transform: scale(1.15);
+}
+
+/* ==========================================================================
+   6. BRUTALIST PRODUCTION PROJECTS CAROUSEL
+   ========================================================================== */
+.project-img {
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover .project-img {
+    transform: scale(1.06);
+}
+
+.proj-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+}
+
+.proj-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.proj-link:hover {
+    color: #ffffff;
+}
+
+.carousel-container {
+    position: relative;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.carousel-slide {
+    flex: 0 0 auto;
+}
+
+.carousel-btn {
+    opacity: 0.8;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    transition: all 0.2s ease !important;
+}
+
+.carousel-btn:hover {
+    opacity: 1;
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+.dot {
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.dot.active {
+    background-color: var(--primary);
+    transform: scale(1.25);
+    box-shadow: 0 0 6px var(--primary);
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .carousel-slide {
+        width: 50% !important;
+    }
+}
+
+/* ==========================================================================
+   7. INTERACTIVE JOURNEY & TIMELINE (EXPERIENCE)
+   ========================================================================== */
+.tab-toggle-group {
+    background-color: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tab-toggle-btn {
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.tab-toggle-btn:hover:not(.tab-active) {
+    background-color: rgba(76, 201, 240, 0.06);
+    color: var(--primary);
+}
+
+.tab-toggle-btn.tab-active {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #0f172a !important;
+    box-shadow: 0 8px 20px rgba(76, 201, 240, 0.25);
+    opacity: 1 !important;
+}
+
+.tab-panel {
+    animation: fadeSlideIn 0.4s ease forwards;
+}
+
+.tab-panel.hidden {
+    display: none;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.timeline {
+    border-left: 2px dashed rgba(76, 201, 240, 0.15);
+}
+
+.timeline::before {
+    display: none;
+}
+
+.timeline-item {
+    position: absolute;
+    left: -6px;
+    top: 36px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 10px var(--primary);
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.card:hover~.timeline-item {
+    border-color: var(--primary);
+    background-color: var(--primary);
+}
+
+/* Modifikasi hover geser ke kanan brutalist khusus halaman experience */
+#experience .card:hover {
+    transform: translateX(6px);
+}
+
+/* ==========================================================================
+   8. PERIPHERAL BACK TO TOP & DECORATIONS
+   ========================================================================== */
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.social-card:hover {
+    border-color: var(--primary) !important;
+    transform: translateX(4px);
+    box-shadow: 0 6px 16px rgba(76, 201, 240, 0.05);
+}
+
+#back-to-top {
+    position: fixed;
+    bottom: 6rem;
+    right: 2rem;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #1a1a2e;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 4px 16px rgba(76, 201, 240, 0.3);
+    opacity: 0;
+    transform: translateY(15px) scale(0.8);
+    transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.2s ease;
+    pointer-events: none;
+    z-index: 999;
+}
+
+#back-to-top.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* ==========================================================================
+   9. STRUCTURAL MICRO-ANIMATIONS
+   ========================================================================== */
+.animate-float {
+    animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+    filter: blur(4px);
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+/* ======================== SCROLL-DRIVEN REVEAL STYLES ======================== */
+.scroll-reveal-container {
+    position: relative;
+    height: 300vh;
+    background-color: #111122;
+}
+
+.scroll-reveal-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.reveal-text-stack {
+    position: relative;
+    height: 100%;
+}
+
+.reveal-word {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    filter: blur(8px);
+    will-change: opacity, transform, filter;
+    transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+}
+
+.reveal-word.word-active {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+    filter: blur(0);
+}
+
+.reveal-word.word-exit {
+    opacity: 0;
+    transform: translateY(-90%) scale(0.95);
+    filter: blur(4px);
+}
+
+.reveal-word.word-upcoming {
+    opacity: 0;
+    transform: translateY(10%) scale(1.05);
+    filter: blur(4px);
+}
+
+/* ======================== LIVE API SANDBOX GRAPHICS ======================== */
+.api-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #16213e;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    width: 100%;
+}
+
+.api-btn:hover:not(.active-btn) {
+    background: #1f2d5a;
+    transform: translateX(4px);
+    border-color: rgba(76, 201, 240, 0.2);
+}
+
+.api-btn.active-btn {
+    background: #0f172a;
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(76, 201, 240, 0.1);
+}
+
+.method {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    min-width: 52px;
+    text-align: center;
+}
+.method.get { background: rgba(52, 211, 153, 0.1); color: #34d399; }
+.method.post { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.method.patch { background: rgba(167, 139, 250, 0.1); color: #a78bfa; }
+
+.endpoint {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+.active-btn .endpoint { color: #ffffff; }
+
+#terminal-console::-webkit-scrollbar {
+    width: 6px;
+}
+#terminal-console::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+/* ======================== LIVE AVAILABILITY TOP BAR ANIMATION ======================== */
+.badge-dot-pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #34d399;
+    animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes live-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+    }
+    50% {
+        opacity: .5;
+        transform: scale(1.2);
+        box-shadow: 0 0 0 4px rgba(52, 211, 153, 0);
+    }
+}
+
+.container {
+    will-change: opacity;
+}
+
+/* ======================== RETRO DINO CANVAS GRAPHICS ======================== */
+#game-stage {
+    box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.6);
+    height: 180px !important;
+}
+
+kbd {
+    box-shadow: 0 2px 0 rgba(255,255,255,0.1);
+}
+
+@keyframes arcade-glow {
+    0%, 100% { filter: drop-shadow(0 0 2px var(--primary)); }
+    50% { filter: drop-shadow(0 0 12px var(--primary)); }
+}
+#overlay-icon i {
+    animation: arcade-glow 2s infinite ease-in-out;
+}
+
+#contact a {
+    will-change: transform;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+#contact a:hover {
+    box-shadow: 0 10px 20px rgba(76, 201, 240, 0.1);
+}
+
+/* ======================== INTERACTIVE PHYSICAL ID CARD STYLES ======================== */
+.hero-id-card-area {
+    position: relative;
+    z-index: 5;
+    width: 240px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .hero-id-card-area {
+        width: 300px;
+        height: 480px;
+    }
+}
+
+.id-card-lanyard-string {
+    width: 2px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--primary));
+    opacity: 0.4;
+    transform-origin: top center;
+}
+
+.id-card-body-container {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    cursor: grab;
+    will-change: transform;
+    transform-origin: top center;
+    transition: box-shadow 0.2s ease;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+@media (min-width: 768px) {
+    .id-card-body-container {
+        height: 400px;
+    }
+}
+
+.id-card-flipper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.id-card-body-container.is-flipped .id-card-flipper {
+    transform: rotateY(180deg);
+}
+
+.id-card-front, .id-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #0f172a;
+    padding: 4px;
+}
+
+.id-card-back {
+    transform: rotateY(180deg);
+    background: #0d1117;
+    border: 1px dashed rgba(76, 201, 240, 0.2);
+}
+
+.id-card-photo-wrapper {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.id-card-img-render {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.animate-spin-slow {
+    animation: spin 4s linear infinite;
+}
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
