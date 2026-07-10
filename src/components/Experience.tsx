@@ -264,7 +264,7 @@ const Experience: React.FC = () => {
                 <div className="card rounded-2xl p-6 md:p-8 ml-6 md:ml-8 transition-all">
                   <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-blue-400 px-2 py-0.5 bg-blue-500 bg-opacity-10 rounded border border-blue-500 border-opacity-20 inline-block mb-1">
+                      <span className="text-xs font-bold uppercase inline-block mb-1">
                         Higher Education
                       </span>
                       <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">
@@ -278,7 +278,6 @@ const Experience: React.FC = () => {
                   <h4 className="text-base font-bold text-blue-400 mb-2 flex items-center gap-2">
                     <i className="fas fa-university text-xs"></i> Astratech – Bekasi, West Java
                   </h4>
-                  <div className="text-sm font-black text-emerald-400 mb-4">{t('edu1_gpa')}</div>
                   <p className="text-gray-400 text-sm leading-relaxed mb-5">
                     {t('edu1_desc')}
                   </p>
@@ -296,7 +295,7 @@ const Experience: React.FC = () => {
                 <div className="card rounded-2xl p-6 md:p-8 ml-6 md:ml-8 transition-all">
                   <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-pink-400 px-2 py-0.5 bg-pink-500 bg-opacity-10 rounded border border-pink-500 border-opacity-20 inline-block mb-1">
+                      <span className="text-xs font-bold uppercase inline-block mb-1">
                         Media & Publication
                       </span>
                       <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">
@@ -333,7 +332,7 @@ const Experience: React.FC = () => {
                 <div className="card rounded-2xl p-6 md:p-8 ml-6 md:ml-8 transition-all">
                   <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
                     <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-green-400 px-2 py-0.5 bg-green-500 bg-opacity-10 rounded border border-green-500 border-opacity-20 inline-block mb-1">
+                      <span className="text-xs font-bold uppercase inline-block mb-1">
                         Community Service
                       </span>
                       <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">
