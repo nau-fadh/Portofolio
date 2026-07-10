@@ -24,26 +24,26 @@ const Experience: React.FC = () => {
         </div>
 
         {/* TAB TOGGLE NAVIGATION */}
-        <div className="flex justify-center mb-16 fade-in visible">
-          <div className="tab-toggle-group p-1.5 bg-gray-900 bg-opacity-50 rounded-2xl border border-gray-800 flex gap-2">
+        <div className="flex justify-center mb-16 fade-in visible w-full px-4">
+          <div className="tab-toggle-group p-1 bg-gray-900 bg-opacity-50 rounded-2xl border border-gray-800 flex w-full max-w-sm sm:max-w-lg">
             <button
               onClick={() => setActiveTab('work')}
-              className={`tab-toggle-btn cursor-pointer transition-all duration-300 px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 ${
+              className={`tab-toggle-btn flex-1 justify-center cursor-pointer transition-all duration-300 px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 ${
                 activeTab === 'work' ? 'tab-active' : 'opacity-60 hover:opacity-100'
               }`}
               aria-label="View Work Experience"
             >
-              <i className="fas fa-briefcase text-xs"></i>
+              <i className="fas fa-briefcase text-[10px] sm:text-xs"></i>
               <span>{t('tab_work')}</span>
             </button>
             <button
               onClick={() => setActiveTab('edu')}
-              className={`tab-toggle-btn cursor-pointer transition-all duration-300 px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 ${
+              className={`tab-toggle-btn flex-1 justify-center cursor-pointer transition-all duration-300 px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 ${
                 activeTab === 'edu' ? 'tab-active' : 'opacity-60 hover:opacity-100'
               }`}
               aria-label="View Education and Organizations"
             >
-              <i className="fas fa-graduation-cap text-xs"></i>
+              <i className="fas fa-graduation-cap text-[10px] sm:text-xs"></i>
               <span>{t('tab_edu')}</span>
             </button>
           </div>
@@ -72,7 +72,7 @@ const Experience: React.FC = () => {
                     </span>
                   </div>
                   <h4 className="text-base font-bold text-blue-400 mb-4 flex items-center gap-2">
-                    <i className="fas fa-building text-xs"></i> Agilis Solutions <span className="text-xs opacity-50 font-normal">| Contract Based</span>
+                    <i className="fas fa-building text-xs"></i> {t('expNew_company')} <span className="text-xs opacity-50 font-normal">| {t('expNew_type')}</span>
                   </h4>
                   <ul className="space-y-2.5 text-gray-400 text-sm">
                     <li className="flex items-start gap-2.5">
