@@ -14,7 +14,7 @@ const ChatWidget: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
+  const [selectedModel, setSelectedModel] = useState('gemini-3.1-flash-lite');
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -145,12 +145,10 @@ const ChatWidget: React.FC = () => {
             disabled={loading}
             className="bg-[#0d1117] text-gray-300 border border-white/10 rounded-md px-2 py-0.5 text-[9px] focus:outline-none focus:border-cyan-400 font-mono cursor-pointer disabled:opacity-50"
           >
-            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-            <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
             <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
-            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Preview)</option>
-            <option value="gemini-flash-latest">Gemini 1.5 Flash</option>
-            <option value="gemini-pro-latest">Gemini 1.5 Pro</option>
+            <option value="gpt-4o-mini">GPT-4o Mini (OpenAI)</option>
+            <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (Anthropic)</option>
+            <option value="claude-3-haiku">Claude 3 Haiku (Anthropic)</option>
           </select>
         </div>
 

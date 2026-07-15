@@ -74,8 +74,110 @@ export async function POST(request: Request) {
       );
     }
 
+    const modelName = model || 'gemini-3.1-flash-lite';
+
+    // ==========================================
+    // 1. PENANGANAN MODEL OPENAI (GPT-4o Mini)
+    // ==========================================
+    if (modelName === 'gpt-4o-mini') {
+      const openaiApiKey = process.env.OPENAI_API_KEY;
+      if (!openaiApiKey) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'API Key OpenAI (OPENAI_API_KEY) belum dikonfigurasi di Vercel Settings Anda. Silakan daftarkan API Key di dasbor Vercel untuk menggunakan model ini.' 
+          },
+          { status: 400 }
+        );
+      }
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...messages.map(msg => ({
+              role: msg.role === 'assistant' ? 'assistant' : 'user',
+              content: msg.content
+            }))
+          ]
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return NextResponse.json(
+          { success: false, error: data.error?.message || 'Gagal memanggil OpenAI API.' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        reply: data.choices?.[0]?.message?.content?.trim() || ''
+      });
+    }
+
+    // ==========================================
+    // 2. PENANGANAN MODEL CLAUDE (Anthropic)
+    // ==========================================
+    if (modelName === 'claude-3-5-sonnet' || modelName === 'claude-3-haiku') {
+      const anthropicApiKey = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;
+      if (!anthropicApiKey) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'API Key Anthropic (ANTHROPIC_API_KEY) belum dikonfigurasi di Vercel Settings Anda. Silakan daftarkan API Key di dasbor Vercel untuk menggunakan model ini.' 
+          },
+          { status: 400 }
+        );
+      }
+
+      // Filter agar riwayat pesan dimulai dari pesan 'user' pertama
+      const firstUserIndex = messages.findIndex(msg => msg.role === 'user');
+      const filteredMessages = firstUserIndex !== -1 ? messages.slice(firstUserIndex) : messages;
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': anthropicApiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: modelName === 'claude-3-5-sonnet' ? 'claude-3-5-sonnet-20241022' : 'claude-3-haiku-20240307',
+          system: SYSTEM_PROMPT,
+          max_tokens: 1024,
+          messages: filteredMessages.map(msg => ({
+            role: msg.role === 'assistant' ? 'assistant' : 'user',
+            content: msg.content
+          }))
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return NextResponse.json(
+          { success: false, error: data.error?.message || 'Gagal memanggil Anthropic API.' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        reply: data.content?.[0]?.text?.trim() || ''
+      });
+    }
+
+    // ==========================================
+    // 3. PENANGANAN MODEL GEMINI (Gemini 3.1 Flash Lite)
+    // ==========================================
     const geminiApiKey = process.env.GEMINI_API_KEY;
-    const modelName = model || 'gemini-2.0-flash';
 
     if (!geminiApiKey) {
       // MODE SIMULASI LOKAL (Jika API Key tidak diset)
@@ -99,18 +201,15 @@ export async function POST(request: Request) {
     }
 
     // Filter pesan agar percakapan selalu dimulai dari pesan 'user' pertama.
-    // Gemini API melarang percakapan dimulai oleh 'model' (pesan sambutan asisten).
     const firstUserIndex = messages.findIndex(msg => msg.role === 'user');
     const filteredMessages = firstUserIndex !== -1 ? messages.slice(firstUserIndex) : messages;
 
-    // Format riwayat chat untuk Gemini REST API
-    // Gemini menggunakan role 'user' dan 'model'. Kita perlu memetakan jika role-nya 'assistant' ke 'model'.
     const geminiContents = filteredMessages.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
     }));
 
-    // Panggil Gemini REST API secara langsung via fetch ke versi v1beta berdasarkan pilihan model
+    // Panggil Gemini REST API (gemini-3.1-flash-lite) secara langsung via fetch ke versi v1beta
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`,
       {
