@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 class Cactus {
   x: number;
@@ -29,10 +30,18 @@ class Cactus {
   }
 }
 
+const AVATAR_EMOJIS: Record<string, string> = {
+  cat: '🐱',
+  robot: '🤖',
+  alien: '👾',
+};
+
 const DinoGame: React.FC = () => {
+  const { language } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const scoreSpanRef = useRef<HTMLSpanElement | null>(null);
   const highscoreSpanRef = useRef<HTMLSpanElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [gameOverState, setGameOverState] = useState<boolean>(false);
@@ -44,6 +53,10 @@ const DinoGame: React.FC = () => {
   const [nameInput, setNameInput] = useState<string>('');
   const [submittingScore, setSubmittingScore] = useState<boolean>(false);
 
+  // States untuk Kustomisasi Avatar Dino
+  const [avatarType, setAvatarType] = useState<string>('default');
+  const [customAvatarBase64, setCustomAvatarBase64] = useState<string | null>(null);
+
   const isPlayingRef = useRef<boolean>(false);
   const gameSpeedRef = useRef<number>(4.5);
   const scoreRef = useRef<number>(0);
@@ -51,24 +64,47 @@ const DinoGame: React.FC = () => {
   const nextObstacleTimerRef = useRef<number>(0);
   const animationIdRef = useRef<number | null>(null);
 
+  // Refs untuk loop animasi game agar tidak stale closure
+  const avatarTypeRef = useRef<string>('default');
+  const customAvatarImgRef = useRef<HTMLImageElement | null>(null);
+
   // Dino object inside refs to keep it mutable across frames
   const dinoRef = useRef({
     x: 40,
     y: 116,
-    width: 22,
+    width: 24,
     height: 28,
     vy: 0,
     isJumping: false,
     color: '#4cc9f0',
-    draw(ctx: CanvasRenderingContext2D, canvasHeight: number) {
-      ctx.fillStyle = this.color;
-      ctx.fillRect(this.x, this.y, this.width, this.height - 6);
-      ctx.fillRect(this.x + 8, this.y - 6, 16, 10); // Head
-      ctx.fillStyle = '#10111a'; // Eye
-      ctx.fillRect(this.x + 18, this.y - 3, 2, 2);
-      ctx.fillStyle = this.color; // Feet
-      ctx.fillRect(this.x + 2, this.y + this.height - 6, 5, 6);
-      ctx.fillRect(this.x + 14, this.y + this.height - 6, 5, 6);
+    draw(ctx: CanvasRenderingContext2D, canvasHeight: number, currentAvatarType: string, customImg: HTMLImageElement | null) {
+      if (currentAvatarType === 'custom' && customImg && customImg.complete) {
+        // Draw Custom Avatar Image (Circular Mask)
+        ctx.save();
+        ctx.beginPath();
+        // Buat clip lingkaran agar foto rapi bulat
+        const radius = Math.min(this.width, this.height) / 2 + 1;
+        ctx.arc(this.x + this.width / 2, this.y + this.height / 2, radius, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(customImg, this.x, this.y, this.width, this.height);
+        ctx.restore();
+      } else if (currentAvatarType !== 'default' && AVATAR_EMOJIS[currentAvatarType]) {
+        // Draw Emoji Avatar
+        ctx.font = '26px Arial';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(AVATAR_EMOJIS[currentAvatarType], this.x - 2, this.y - 2);
+      } else {
+        // Draw Default Retro Cyber Dino
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height - 6);
+        ctx.fillRect(this.x + 8, this.y - 6, 16, 10); // Head
+        ctx.fillStyle = '#10111a'; // Eye
+        ctx.fillRect(this.x + 18, this.y - 3, 2, 2);
+        ctx.fillStyle = this.color; // Feet
+        ctx.fillRect(this.x + 2, this.y + this.height - 6, 5, 6);
+        ctx.fillRect(this.x + 14, this.y + this.height - 6, 5, 6);
+      }
     },
     jump() {
       if (!this.isJumping) {
@@ -138,13 +174,70 @@ const DinoGame: React.FC = () => {
     }
   };
 
-  // Load highscore & leaderboard on mount
+  // Ubah tipe avatar dino
+  const changeAvatar = (type: string) => {
+    avatarTypeRef.current = type;
+    setAvatarType(type);
+    localStorage.setItem('dino-avatar-type', type);
+    drawInitialState();
+  };
+
+  // Tangani upload foto kustom
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Batasi ukuran file 1MB agar muat di localStorage
+    if (file.size > 1024 * 1024) {
+      alert(language === 'id' ? 'Ukuran foto terlalu besar! Maksimal 1MB.' : 'Photo size too large! Max 1MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      if (base64) {
+        localStorage.setItem('dino-custom-avatar', base64);
+        setCustomAvatarBase64(base64);
+
+        const img = new Image();
+        img.onload = () => {
+          customAvatarImgRef.current = img;
+          changeAvatar('custom');
+        };
+        img.src = base64;
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Load highscore, leaderboard, dan avatar pada mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = parseInt(localStorage.getItem('dino-highscore') || '0');
       setHighScore(saved);
       if (highscoreSpanRef.current) {
         highscoreSpanRef.current.textContent = String(saved).padStart(5, '0');
+      }
+
+      // Load avatar preferences
+      const savedAvatarType = localStorage.getItem('dino-avatar-type') || 'default';
+      const savedCustomAvatar = localStorage.getItem('dino-custom-avatar');
+
+      if (savedCustomAvatar) {
+        setCustomAvatarBase64(savedCustomAvatar);
+        const img = new Image();
+        img.onload = () => {
+          customAvatarImgRef.current = img;
+          // Set type setelah image ter-load sempurna
+          avatarTypeRef.current = savedAvatarType;
+          setAvatarType(savedAvatarType);
+          drawInitialState();
+        };
+        img.src = savedCustomAvatar;
+      } else {
+        avatarTypeRef.current = savedAvatarType === 'custom' ? 'default' : savedAvatarType;
+        setAvatarType(avatarTypeRef.current);
       }
     }
     fetchLeaderboard();
@@ -167,7 +260,7 @@ const DinoGame: React.FC = () => {
 
     // Reset dino y
     dinoRef.current.y = canvas.height - 34;
-    dinoRef.current.draw(ctx, canvas.height);
+    dinoRef.current.draw(ctx, canvas.height, avatarTypeRef.current, customAvatarImgRef.current);
   };
 
   const startGame = () => {
@@ -237,7 +330,7 @@ const DinoGame: React.FC = () => {
 
     // Dino Update
     dinoRef.current.update(gravity, canvas.height);
-    dinoRef.current.draw(ctx, canvas.height);
+    dinoRef.current.draw(ctx, canvas.height, avatarTypeRef.current, customAvatarImgRef.current);
 
     // Obstacle Logic
     if (nextObstacleTimerRef.current <= 0) {
@@ -348,7 +441,7 @@ const DinoGame: React.FC = () => {
           </p>
         </div>
 
-        {/* Arcade Machine Wrapper (Two-column layout on Desktop) */}
+        {/* Arcade Machine Wrapper */}
         <div className="max-w-4xl mx-auto bg-[#16213e] rounded-2xl border border-white border-opacity-5 p-4 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.4)] fade-in visible">
           
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
@@ -378,7 +471,7 @@ const DinoGame: React.FC = () => {
               >
                 <canvas ref={canvasRef} width="600" height="150" className="w-full h-full block" />
 
-                {/* Modal Input Inisial Nama (New Record) */}
+                {/* Modal Input Nama (New Record) */}
                 {showNameInput && (
                   <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center text-center p-4 z-30 cursor-default" onClick={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
                     <div className="text-lg md:text-xl text-yellow-400 font-black mb-1 animate-pulse tracking-wide font-mono">
@@ -426,6 +519,71 @@ const DinoGame: React.FC = () => {
                 )}
               </div>
 
+              {/* AVATAR & CUSTOM PHOTO SELECTOR */}
+              <div className="mt-4 p-3 bg-[#0d1117] rounded-xl border border-gray-800 font-mono text-[10px] text-gray-400">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="font-bold uppercase tracking-wider text-cyan-400">
+                    <i className="fas fa-user-astronaut mr-1"></i> {language === 'id' ? 'Kustomisasi Avatar Dino:' : 'Customize Dino Avatar:'}
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => changeAvatar('default')}
+                      className={`px-3 py-1.5 rounded-lg border font-bold transition-all cursor-pointer ${avatarType === 'default' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' : 'bg-gray-900 text-gray-400 border-white/5 hover:text-white'}`}
+                    >
+                      🦖 Classic
+                    </button>
+                    <button
+                      onClick={() => changeAvatar('cat')}
+                      className={`px-3 py-1.5 rounded-lg border font-bold transition-all cursor-pointer ${avatarType === 'cat' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' : 'bg-gray-900 text-gray-400 border-white/5 hover:text-white'}`}
+                    >
+                      🐱 Cat
+                    </button>
+                    <button
+                      onClick={() => changeAvatar('robot')}
+                      className={`px-3 py-1.5 rounded-lg border font-bold transition-all cursor-pointer ${avatarType === 'robot' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' : 'bg-gray-900 text-gray-400 border-white/5 hover:text-white'}`}
+                    >
+                      🤖 Robot
+                    </button>
+                    <button
+                      onClick={() => changeAvatar('alien')}
+                      className={`px-3 py-1.5 rounded-lg border font-bold transition-all cursor-pointer ${avatarType === 'alien' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' : 'bg-gray-900 text-gray-400 border-white/5 hover:text-white'}`}
+                    >
+                      👾 Alien
+                    </button>
+
+                    {/* Tombol Upload / Custom Foto */}
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleAvatarUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`px-3 py-1.5 rounded-lg border font-bold transition-all cursor-pointer flex items-center gap-1.5 ${avatarType === 'custom' ? 'bg-purple-500/20 text-purple-400 border-purple-500/40' : 'bg-gray-900 text-gray-400 border-white/5 hover:text-white'}`}
+                    >
+                      {customAvatarBase64 ? (
+                        <div className="flex items-center gap-1.5">
+                          <img
+                            src={customAvatarBase64}
+                            alt="Custom Preview"
+                            className="w-3.5 h-3.5 rounded-full border border-purple-400/50 object-cover"
+                          />
+                          <span>{language === 'id' ? 'Foto Anda' : 'Your Photo'}</span>
+                        </div>
+                      ) : (
+                        <>
+                          <i className="fas fa-upload text-[9px]"></i>
+                          <span>{language === 'id' ? 'Upload Foto' : 'Upload Photo'}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               {/* Mobile Controls Helper */}
               {!isPlaying && !showNameInput && (
                 <div className="sm:hidden mt-4">
@@ -465,14 +623,14 @@ const DinoGame: React.FC = () => {
                     <div className="text-gray-600 text-center py-8">Loading records...</div>
                   ) : (
                     leaderboard.map((entry, idx) => (
-                      <div key={idx} className="flex justify-between items-center py-1.5 border-b border-white/5 last:border-b-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-4 text-center font-black ${idx === 0 ? 'text-yellow-400' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-amber-600' : 'text-gray-600'}`}>
+                      <div key={idx} className="flex justify-between items-center py-1.5 border-b border-white/5 last:border-b-0 font-mono">
+                        <div className="flex items-center gap-2 max-w-[65%]">
+                          <span className={`w-4 text-center font-black flex-shrink-0 ${idx === 0 ? 'text-yellow-400' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-amber-600' : 'text-gray-600'}`}>
                             {idx + 1}
                           </span>
-                          <span className="font-bold text-white tracking-widest">{entry.name}</span>
+                          <span className="font-bold text-white truncate" title={entry.name}>{entry.name}</span>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-shrink-0">
                           <span className="text-cyan-400 font-bold font-mono">{String(entry.score).padStart(5, '0')}</span>
                           <span className="text-[9px] text-gray-600">{entry.date}</span>
                         </div>
@@ -483,7 +641,7 @@ const DinoGame: React.FC = () => {
               </div>
 
               <div className="text-[9px] text-gray-600 text-center pt-2 mt-2 border-t border-white/5 font-mono uppercase">
-                Offline Arcade Station v2.0
+                Offline Arcade Station v2.1
               </div>
             </div>
 
