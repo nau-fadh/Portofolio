@@ -97,9 +97,14 @@ export async function POST(request: Request) {
       });
     }
 
+    // Filter pesan agar percakapan selalu dimulai dari pesan 'user' pertama.
+    // Gemini API melarang percakapan dimulai oleh 'model' (pesan sambutan asisten).
+    const firstUserIndex = messages.findIndex(msg => msg.role === 'user');
+    const filteredMessages = firstUserIndex !== -1 ? messages.slice(firstUserIndex) : messages;
+
     // Format riwayat chat untuk Gemini REST API
     // Gemini menggunakan role 'user' dan 'model'. Kita perlu memetakan jika role-nya 'assistant' ke 'model'.
-    const geminiContents = messages.map(msg => ({
+    const geminiContents = filteredMessages.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
     }));
