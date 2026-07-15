@@ -11,6 +11,7 @@ import ApiSimulator from '../components/ApiSimulator';
 import TextReveal from '../components/TextReveal';
 import DinoGame from '../components/DinoGame';
 import Contact from '../components/Contact';
+import ChatWidget from '../components/ChatWidget';
 
 export default function Home() {
   useEffect(() => {
@@ -50,6 +51,7 @@ export default function Home() {
       <TextReveal />
       <DinoGame />
       <Contact />
+      <ChatWidget />
       <Header />
     </main>
   );
