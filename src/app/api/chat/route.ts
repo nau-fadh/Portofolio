@@ -65,7 +65,7 @@ Strict Behavioral Instructions:
 
 export async function POST(request: Request) {
   try {
-    const { messages } = await request.json();
+    const { messages, model } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -75,6 +75,7 @@ export async function POST(request: Request) {
     }
 
     const geminiApiKey = process.env.GEMINI_API_KEY;
+    const modelName = model || 'gemini-2.0-flash';
 
     if (!geminiApiKey) {
       // MODE SIMULASI LOKAL (Jika API Key tidak diset)
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
       } else if (lastUserMessage.includes('kontak') || lastUserMessage.includes('hubungi') || lastUserMessage.includes('email') || lastUserMessage.includes('whatsapp')) {
         reply += 'Anda dapat menghubungi Naufal melalui Email (fadlurahman03@gmail.com) atau WhatsApp (+6282121686379). Link sosial medianya juga tersedia lengkap di bagian bawah halaman ini.';
       } else {
-        reply += 'Saat ini Gemini API Key belum dipasang di pengaturan server Vercel. Untuk mengobrol secara pintar dan interaktif dengan asisten AI asli, silakan pasang variabel lingkungan GEMINI_API_KEY di dasbor Vercel Anda!';
+        reply += `Saat ini Gemini API Key belum dipasang di pengaturan server Vercel. (Mode: ${modelName})`;
       }
 
       return NextResponse.json({
@@ -109,10 +110,9 @@ export async function POST(request: Request) {
       parts: [{ text: msg.content }]
     }));
 
-    // Panggil Gemini REST API (gemini-flash-latest) secara langsung via fetch ke versi v1beta
-    // Catatan: systemInstruction didukung penuh secara default pada endpoint v1beta.
+    // Panggil Gemini REST API secara langsung via fetch ke versi v1beta berdasarkan pilihan model
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiApiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`,
       {
         method: 'POST',
         headers: {

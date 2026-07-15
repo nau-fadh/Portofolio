@@ -14,6 +14,7 @@ const ChatWidget: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -56,7 +57,7 @@ const ChatWidget: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ messages: updatedMessages }),
+        body: JSON.stringify({ messages: updatedMessages, model: selectedModel }),
       });
 
       const data = await res.json();
@@ -133,6 +134,24 @@ const ChatWidget: React.FC = () => {
           >
             <i className="fas fa-times"></i>
           </button>
+        </div>
+
+        {/* Model Selector Sub-Header Bar */}
+        <div className="px-4 py-2 bg-[#090d13] border-b border-white/5 flex items-center justify-between font-mono text-[9px] text-gray-400">
+          <span className="font-bold tracking-wider uppercase">{language === 'id' ? 'PILIH MODEL:' : 'SELECT MODEL:'}</span>
+          <select
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            disabled={loading}
+            className="bg-[#0d1117] text-gray-300 border border-white/10 rounded-md px-2 py-0.5 text-[9px] focus:outline-none focus:border-cyan-400 font-mono cursor-pointer disabled:opacity-50"
+          >
+            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+            <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
+            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Preview)</option>
+            <option value="gemini-flash-latest">Gemini 1.5 Flash</option>
+            <option value="gemini-pro-latest">Gemini 1.5 Pro</option>
+          </select>
         </div>
 
         {/* Message List Panel */}
