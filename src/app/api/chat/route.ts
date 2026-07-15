@@ -109,10 +109,10 @@ export async function POST(request: Request) {
       parts: [{ text: msg.content }]
     }));
 
-    // Panggil Gemini REST API (gemini-2.0-flash) secara langsung via fetch ke versi v1beta
+    // Panggil Gemini REST API (gemini-flash-latest) secara langsung via fetch ke versi v1beta
     // Catatan: systemInstruction didukung penuh secara default pada endpoint v1beta.
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiApiKey}`,
       {
         method: 'POST',
         headers: {
