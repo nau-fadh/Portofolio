@@ -122,10 +122,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const cleanName = name.trim().toUpperCase().substring(0, 3);
+    const cleanName = name.trim().substring(0, 15);
     if (cleanName.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Nama inisial wajib diisi.' },
+        { success: false, error: 'Nama wajib diisi.' },
         { status: 400 }
       );
     }

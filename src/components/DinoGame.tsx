@@ -385,18 +385,18 @@ const DinoGame: React.FC = () => {
                       <i className="fas fa-star"></i> NEW RECORD! <i className="fas fa-star"></i>
                     </div>
                     <p className="text-[10px] text-gray-400 font-mono mb-3">
-                      Your score: <span className="text-cyan-400 font-bold">{scoreRef.current}</span>. Enter 3-letter initials to save:
+                      Your score: <span className="text-cyan-400 font-bold">{scoreRef.current}</span>. Enter your name to save:
                     </p>
                     <form onSubmit={submitScore} className="flex flex-col items-center gap-3">
                       <input
                         type="text"
-                        maxLength={3}
+                        maxLength={15}
                         value={nameInput}
-                        onChange={(e) => setNameInput(e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
-                        placeholder="AAA"
+                        onChange={(e) => setNameInput(e.target.value)}
+                        placeholder="Enter your name"
                         required
                         disabled={submittingScore}
-                        className="bg-gray-900 border border-cyan-500/30 text-white font-mono text-center text-xl tracking-widest rounded-xl px-4 py-2 w-28 focus:outline-none focus:border-cyan-400"
+                        className="bg-gray-900 border border-cyan-500/30 text-white font-mono text-center text-sm rounded-xl px-4 py-2 w-56 focus:outline-none focus:border-cyan-400"
                         autoFocus
                       />
                       <button
