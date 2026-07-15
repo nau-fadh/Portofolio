@@ -131,8 +131,24 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       console.error('Error dari Gemini API:', data);
+      
+      // Coba ambil daftar model yang didukung oleh API Key pengguna untuk membantu debugging
+      let availableModelsMsg = '';
+      try {
+        const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`);
+        if (listRes.ok) {
+          const listData = await listRes.json();
+          const modelNames = listData.models
+            ? listData.models.map((m: any) => m.name.replace('models/', ''))
+            : [];
+          availableModelsMsg = ` [Supported models: ${modelNames.join(', ')}]`;
+        }
+      } catch (listErr) {
+        console.error('Gagal memuat list models:', listErr);
+      }
+
       return NextResponse.json(
-        { success: false, error: data.error?.message || 'Gagal memanggil AI model.' },
+        { success: false, error: (data.error?.message || 'Gagal memanggil AI model.') + availableModelsMsg },
         { status: 500 }
       );
     }
