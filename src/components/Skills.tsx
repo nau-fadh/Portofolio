@@ -39,7 +39,7 @@ const BentoCard: React.FC<BentoCardProps> = ({ className = '', icon, tag, subTag
           <i className={icon}></i>
         </div>
         <div>
-          <span className="bento-tag block text-white font-bold">{tag}</span>
+          <span className="bento-tag block text-text font-bold">{tag}</span>
           <span className="text-xs opacity-50 uppercase tracking-wider font-bold text-gray-400">
             {subTag}
           </span>
@@ -60,7 +60,7 @@ const Skills: React.FC = () => {
 
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-gray-500 border-opacity-10 pb-8">
           <div className="fade-in visible">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-text">
               TECHNICAL <span className="gradient-text">ABILITIES</span>
             </h2>
           </div>

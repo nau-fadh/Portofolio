@@ -91,7 +91,7 @@ const ChatWidget: React.FC = () => {
       {/* 1. FLOATING CHAT BUBBLE BUTTON (Terletak di Pojok Kiri Bawah, Selaras dengan Back to Top) */}
       <button
         onClick={toggleChat}
-        className={`fixed bottom-[6rem] left-[2rem] w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white flex items-center justify-center cursor-pointer shadow-lg hover:shadow-cyan-500/20 hover:scale-110 active:scale-95 transition-all duration-300 z-[999] border border-white border-opacity-10`}
+        className={`fixed bottom-[6rem] left-[2rem] w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white flex items-center justify-center cursor-pointer shadow-lg hover:shadow-cyan-500/20 hover:scale-110 active:scale-95 transition-all duration-300 z-[999] border border-white border-opacity-10 ai-chat-trigger`}
         title="AI Assistant"
         aria-label="Toggle AI Assistant Chat"
       >
@@ -101,27 +101,27 @@ const ChatWidget: React.FC = () => {
           <div className="relative">
             <i className="fas fa-robot text-base"></i>
             {/* Status dot indicator */}
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 border border-[#16213e] rounded-full animate-pulse"></span>
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 border border-[#16213e] rounded-full animate-pulse status-dot"></span>
           </div>
         )}
       </button>
 
       {/* 2. CHAT WINDOW CARD */}
       <div
-        className={`fixed left-[2rem] bottom-[10rem] w-[320px] sm:w-[360px] h-[450px] bg-[#0d1117]/95 border border-white border-opacity-10 rounded-2xl flex flex-col shadow-2xl backdrop-blur-md transition-all duration-300 z-[999] overflow-hidden origin-bottom-left ${
+        className={`fixed left-[2rem] bottom-[10rem] w-[320px] sm:w-[360px] h-[450px] bg-[#0d1117]/95 border border-white border-opacity-10 rounded-2xl flex flex-col shadow-2xl backdrop-blur-md transition-all duration-300 z-[999] overflow-hidden origin-bottom-left ai-chat-window ${
           isOpen
             ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
             : 'opacity-0 translate-y-8 scale-75 pointer-events-none'
         }`}
       >
         {/* Header Widget */}
-        <div className="p-4 bg-[#16213e]/80 border-b border-white/5 flex items-center justify-between">
+        <div className="p-4 bg-[#16213e]/80 border-b border-white/5 flex items-center justify-between ai-chat-header">
           <div className="flex items-center space-x-2.5">
             <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-gray-950 font-black">
               <i className="fas fa-robot text-xs text-white"></i>
             </div>
             <div className="text-left font-mono">
-              <h4 className="text-xs font-bold text-white tracking-wide uppercase">Naufal AI Assistant</h4>
+              <h4 className="text-xs font-bold text-white tracking-wide uppercase ai-chat-title">Naufal AI Assistant</h4>
               <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> ONLINE
               </span>
@@ -137,7 +137,7 @@ const ChatWidget: React.FC = () => {
         </div>
 
         {/* Model Selector Sub-Header Bar */}
-        <div className="px-4 py-2 bg-[#090d13] border-b border-white/5 flex items-center justify-between font-mono text-[9px] text-gray-400">
+        <div className="px-4 py-2 bg-[#090d13] border-b border-white/5 flex items-center justify-between font-mono text-[9px] text-gray-400 ai-chat-model-bar">
           <span className="font-bold tracking-wider uppercase">{language === 'id' ? 'PILIH MODEL:' : 'SELECT MODEL:'}</span>
           <select
             value={selectedModel}
@@ -164,8 +164,8 @@ const ChatWidget: React.FC = () => {
               <div
                 className={`px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed font-sans ${
                   msg.role === 'user'
-                    ? 'bg-gradient-to-r from-purple-600/30 to-cyan-500/30 text-white rounded-tr-none border border-cyan-500/20'
-                    : 'bg-[#16213e]/70 text-gray-200 rounded-tl-none border border-white/5'
+                    ? 'bg-gradient-to-r from-purple-600/30 to-cyan-500/30 text-white rounded-tr-none border border-cyan-500/20 ai-chat-bubble-user'
+                    : 'bg-[#16213e]/70 text-gray-200 rounded-tl-none border border-white/5 ai-chat-bubble-assistant'
                 }`}
               >
                 {msg.content}
@@ -175,7 +175,7 @@ const ChatWidget: React.FC = () => {
 
           {/* AI Typing Loader */}
           {loading && (
-            <div className="self-start max-w-[85%] flex items-center space-x-1.5 bg-[#16213e]/70 px-3.5 py-3 rounded-2xl rounded-tl-none border border-white/5 text-[9px] text-gray-400 font-mono">
+            <div className="self-start max-w-[85%] flex items-center space-x-1.5 bg-[#16213e]/70 px-3.5 py-3 rounded-2xl rounded-tl-none border border-white/5 text-[9px] text-gray-400 font-mono ai-chat-typing">
               <span className="w-1 h-1 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
               <span className="w-1 h-1 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
               <span className="w-1 h-1 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
@@ -185,7 +185,7 @@ const ChatWidget: React.FC = () => {
         </div>
 
         {/* Input Form Footer */}
-        <form onSubmit={handleSend} className="p-3 bg-[#16213e]/30 border-t border-white/5 flex gap-2">
+        <form onSubmit={handleSend} className="p-3 bg-[#16213e]/30 border-t border-white/5 flex gap-2 ai-chat-footer">
           <input
             type="text"
             value={inputValue}
@@ -197,7 +197,7 @@ const ChatWidget: React.FC = () => {
             }
             required
             disabled={loading}
-            className="flex-1 bg-[#0d1117] border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400/50 disabled:opacity-50 font-sans"
+            className="flex-1 bg-[#0d1117] border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400/50 disabled:opacity-50 font-sans ai-chat-input"
           />
           <button
             type="submit"

@@ -38,7 +38,9 @@ const CanvasBackground: React.FC = () => {
     const animateParticles = () => {
       if (!canvas || !ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(76, 201, 240, 0.15)";
+      
+      const isLight = document.documentElement.classList.contains('light');
+      ctx.fillStyle = isLight ? "rgba(0, 119, 182, 0.08)" : "rgba(76, 201, 240, 0.15)";
 
       particles.forEach((p) => {
         p.y += p.z * 0.5;

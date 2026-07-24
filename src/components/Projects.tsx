@@ -142,7 +142,7 @@ const Projects: React.FC = () => {
         {/* HEADER SECTION */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-gray-500 border-opacity-10 pb-8">
           <div className="fade-in visible">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-text">
               FEATURED <span className="gradient-text">PROJECTS</span>
             </h2>
           </div>
@@ -187,7 +187,7 @@ const Projects: React.FC = () => {
                           </span>
                         </div>
                         <div className="p-6">
-                          <h3 className="text-xl font-bold mb-3 text-white tracking-tight">
+                          <h3 className="text-xl font-bold mb-3 text-text tracking-tight">
                             {title}
                           </h3>
                           <p className="text-gray-400 text-xs md:text-sm leading-relaxed mb-6">

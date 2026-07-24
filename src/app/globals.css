@@ -918,3 +918,252 @@ kbd {
     animation: spin 4s linear infinite;
 }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ==========================================================================
+   10. LIGHT THEME OVERRIDES (PREMIUM LIGHT MODE SYSTEM)
+   ========================================================================== */
+.light {
+  --primary: #0077b6;
+  --secondary: #0096c7;
+  --accent: #ff006e;
+  --text: #1f2937;
+  --bg: #f3f4f6;
+  --card-bg: #ffffff;
+}
+
+/* Overrides khusus element yang menggunakan nilai statis gelap */
+.light body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.light .card {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.light .card:hover {
+  box-shadow: 0 20px 35px rgba(0, 119, 182, 0.06);
+  border-color: rgba(0, 119, 182, 0.2);
+}
+
+.light .giant-bg-text {
+  color: rgba(0, 119, 182, 0.03);
+}
+
+.light .hero-slideshow {
+  border: 4px solid #ffffff !important;
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.15);
+}
+
+.light .cta-ghost {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text);
+}
+
+.light .cta-ghost:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.light .bento-card {
+  background: linear-gradient(145deg, #ffffff, #f9fafb);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.light .bento-card:hover {
+  border-color: rgba(0, 119, 182, 0.25);
+  box-shadow: 0 20px 40px rgba(0, 119, 182, 0.04);
+}
+
+.light .bento-glow {
+  background: radial-gradient(circle, rgba(0, 119, 182, 0.06) 0%, transparent 70%);
+}
+
+.light .bpill {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text);
+}
+
+.light .bpill:hover {
+  background: rgba(0, 119, 182, 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.light .proj-pill {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: #4b5563;
+}
+
+.light .proj-link:hover {
+  color: var(--secondary);
+}
+
+.light .carousel-btn {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+.light .tab-toggle-group {
+  background-color: #e5e7eb;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.light .tab-toggle-btn {
+  color: #4b5563;
+}
+
+.light .tab-toggle-btn:hover:not(.tab-active) {
+  background-color: rgba(0, 119, 182, 0.06);
+  color: var(--primary);
+}
+
+.light .tab-toggle-btn.tab-active {
+  color: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(0, 119, 182, 0.2);
+}
+
+.light .timeline {
+  border-left: 2px dashed rgba(0, 119, 182, 0.2);
+}
+
+.light .timeline-item {
+  background: var(--bg);
+  border: 2px solid var(--primary);
+  box-shadow: 0 0 10px rgba(0, 119, 182, 0.3);
+}
+
+.light .api-btn {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+}
+
+.light .api-btn:hover:not(.active-btn) {
+  background: #f9fafb;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.light .api-btn.active-btn {
+  background: #f3f4f6;
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(0, 119, 182, 0.06);
+}
+
+.light .endpoint {
+  color: #4b5563;
+}
+
+.light .active-btn .endpoint {
+  color: var(--text);
+}
+
+.light #terminal-console::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.light .id-card-body-container {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  border: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.light .id-card-lanyard-string {
+  background: linear-gradient(to bottom, transparent, var(--primary));
+  opacity: 0.6;
+}
+
+.light .id-card-front {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.light .id-card-back {
+  background: #f9fafb;
+  border: 1px dashed rgba(0, 119, 182, 0.2);
+}
+
+.light kbd {
+  background: #e5e7eb !important;
+  border-color: #d1d5db !important;
+  color: #1f2937 !important;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.05);
+}
+
+.light .scroll-reveal-container {
+  background-color: #e5e7eb;
+}
+
+/* AI Chat Widget Theme Overrides */
+.light .ai-chat-window {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08) !important;
+}
+
+.light .ai-chat-header {
+  background-color: rgba(243, 244, 246, 0.9) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.light .ai-chat-title {
+  color: var(--text) !important;
+}
+
+.light .ai-chat-model-bar {
+  background-color: #f9fafb !important;
+  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.light .ai-chat-model-bar select {
+  background-color: #ffffff !important;
+  color: var(--text) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light .ai-chat-bubble-assistant,
+.light .ai-chat-typing {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  color: var(--text) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.light .ai-chat-bubble-user {
+  background: linear-gradient(90deg, rgba(147, 51, 234, 0.12), rgba(6, 182, 212, 0.12)) !important;
+  color: #4b2382 !important;
+  border-color: rgba(6, 182, 212, 0.2) !important;
+}
+
+.light .ai-chat-footer {
+  background-color: rgba(243, 244, 246, 0.8) !important;
+  border-top-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.light .ai-chat-input {
+  background-color: #ffffff !important;
+  color: var(--text) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light .ai-chat-input::placeholder {
+  color: #9ca3af !important;
+}
+
+.light .ai-chat-trigger {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.light .status-dot {
+  border-color: #ffffff !important;
+}
+
+.light #game-stage {
+  background-color: #f9fafb !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+

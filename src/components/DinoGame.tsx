@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 
 class Cactus {
   x: number;
@@ -38,6 +39,7 @@ const AVATAR_EMOJIS: Record<string, string> = {
 
 const DinoGame: React.FC = () => {
   const { language } = useLanguage();
+  const { theme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const scoreSpanRef = useRef<HTMLSpanElement | null>(null);
   const highscoreSpanRef = useRef<HTMLSpanElement | null>(null);
@@ -96,12 +98,14 @@ const DinoGame: React.FC = () => {
         ctx.fillText(AVATAR_EMOJIS[currentAvatarType], this.x - 2, this.y - 2);
       } else {
         // Draw Default Retro Cyber Dino
-        ctx.fillStyle = this.color;
+        const isLight = document.documentElement.classList.contains('light');
+        const activeColor = isLight ? '#0077b6' : this.color;
+        ctx.fillStyle = activeColor;
         ctx.fillRect(this.x, this.y, this.width, this.height - 6);
         ctx.fillRect(this.x + 8, this.y - 6, 16, 10); // Head
-        ctx.fillStyle = '#10111a'; // Eye
+        ctx.fillStyle = isLight ? '#f9fafb' : '#10111a'; // Eye
         ctx.fillRect(this.x + 18, this.y - 3, 2, 2);
-        ctx.fillStyle = this.color; // Feet
+        ctx.fillStyle = activeColor; // Feet
         ctx.fillRect(this.x + 2, this.y + this.height - 6, 5, 6);
         ctx.fillRect(this.x + 14, this.y + this.height - 6, 5, 6);
       }
@@ -251,7 +255,8 @@ const DinoGame: React.FC = () => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // Draw Ground
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    const isLight = document.documentElement.classList.contains('light');
+    ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, canvas.height - 6);
@@ -321,7 +326,8 @@ const DinoGame: React.FC = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw Ground Level
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    const isLight = document.documentElement.classList.contains('light');
+    ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, canvas.height - 6);
@@ -411,7 +417,7 @@ const DinoGame: React.FC = () => {
         cancelAnimationFrame(animationIdRef.current);
       }
     };
-  }, [highScore, showNameInput]);
+  }, [highScore, showNameInput, theme]);
 
   const handleStageMouseDown = () => {
     triggerJumpAction();

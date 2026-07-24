@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 
 const Header: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -34,21 +36,21 @@ const Header: React.FC = () => {
     <header
       id="main-header"
       className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[92%] max-w-2xl transition-all duration-300 ${
-        scrolled ? 'scrolled bg-[#1a1a2e]/95 border-opacity-20' : ''
+        scrolled ? 'scrolled bg-card-bg/95 border-opacity-20' : ''
       }`}
     >
-      <div className="w-full bg-[#1a1a2e] bg-opacity-80 backdrop-blur-xl rounded-2xl border border-white border-opacity-5 p-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between gap-2">
+      <div className="w-full bg-card-bg bg-opacity-80 backdrop-blur-xl rounded-2xl border border-white border-opacity-5 p-2 shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-between gap-2 transition-colors duration-300">
         {/* Brand Indicator */}
         <a
           href="#home"
           onClick={(e) => handleLinkClick(e, '#home')}
-          className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center font-black text-sm tracking-tighter gradient-text hover:scale-105 transition-transform flex-shrink-0"
+          className="w-10 h-10 rounded-xl bg-bg flex items-center justify-center font-black text-sm tracking-tighter gradient-text hover:scale-105 transition-transform flex-shrink-0 border border-white/5"
         >
           NF
         </a>
 
         {/* Desktop Links */}
-        <nav className="hidden sm:flex items-center bg-gray-950 bg-opacity-40 rounded-xl p-1 border border-white border-opacity-5 overflow-x-auto select-none">
+        <nav className="hidden sm:flex items-center bg-bg bg-opacity-40 rounded-xl p-1 border border-white border-opacity-5 overflow-x-auto select-none transition-colors duration-300">
           <a href="#home" onClick={(e) => handleLinkClick(e, '#home')} className="nav-dock-link">
             {t('nav_home')}
           </a>
@@ -68,6 +70,15 @@ const Header: React.FC = () => {
 
         {/* Right Side Controls */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className="w-9 h-9 rounded-xl bg-bg bg-opacity-40 hover:bg-opacity-80 border border-white border-opacity-5 flex items-center justify-center text-gray-400 hover:text-primary transition-all cursor-pointer text-xs"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            <i className={`fas ${theme === 'dark' ? 'fa-sun text-yellow-400' : 'fa-moon text-blue-500'}`}></i>
+          </button>
+
           <div className="language-toggle flex">
             <button
               onClick={() => setLanguage('en')}
@@ -86,7 +97,7 @@ const Header: React.FC = () => {
           {/* Small Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="sm:hidden text-gray-400 hover:text-white p-2.5 transition-colors"
+            className="sm:hidden text-gray-400 hover:text-primary p-2.5 transition-colors"
           >
             <i className="fas fa-bars text-sm"></i>
           </button>
@@ -96,7 +107,7 @@ const Header: React.FC = () => {
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div id="mobile-menu" className="absolute bottom-full left-0 w-full pb-3">
-          <div className="bg-[#1a1a2e] bg-opacity-95 backdrop-blur-lg rounded-2xl border border-white border-opacity-5 p-4 shadow-2xl flex flex-col space-y-2">
+          <div className="bg-card-bg bg-opacity-95 backdrop-blur-lg rounded-2xl border border-white border-opacity-5 p-4 shadow-2xl flex flex-col space-y-2 transition-colors duration-300">
             <a href="#home" onClick={(e) => handleLinkClick(e, '#home')} className="nav-dock-link px-3 py-2 block text-center">
               {t('nav_home')}
             </a>
