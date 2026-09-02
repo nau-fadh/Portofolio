@@ -43,11 +43,7 @@ async function getLeaderboard(): Promise<any[]> {
     const exists = await fs.access(filePath).then(() => true).catch(() => false);
     if (!exists) {
       const defaultScores = [
-        { name: "NF", score: 2500, date: "2026-07-11" },
-        { name: "DEV", score: 1800, date: "2026-07-11" },
-        { name: "BA", score: 1500, date: "2026-07-11" },
-        { name: "HRD", score: 900, date: "2026-07-11" },
-        { name: "GST", score: 400, date: "2026-07-11" }
+        {}
       ];
       await fs.writeFile(filePath, JSON.stringify(defaultScores, null, 2), 'utf-8');
       return defaultScores;
@@ -58,9 +54,7 @@ async function getLeaderboard(): Promise<any[]> {
   } catch (e) {
     console.error('Gagal membaca file leaderboard:', e);
     return [
-      { name: "NF", score: 2500, date: "2026-07-11" },
-      { name: "DEV", score: 1800, date: "2026-07-11" },
-      { name: "BA", score: 1500, date: "2026-07-11" }
+      { }
     ];
   }
 }
