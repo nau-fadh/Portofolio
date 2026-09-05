@@ -632,7 +632,7 @@ const DinoGame: React.FC = () => {
                   {leaderboard.length === 0 ? (
                     <div className="text-gray-600 text-center py-8">Loading records...</div>
                   ) : (
-                    leaderboard.map((entry, idx) => (
+                    leaderboard.filter((entry) => entry && entry.name && typeof entry.score === 'number').map((entry, idx) => (
                       <div key={idx} className="flex justify-between items-center py-1.5 border-b border-white/5 last:border-b-0 font-mono">
                         <div className="flex items-center gap-2 max-w-[65%]">
                           <span className={`w-4 text-center font-black flex-shrink-0 ${idx === 0 ? 'text-yellow-400' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-amber-600' : 'text-gray-600'}`}>

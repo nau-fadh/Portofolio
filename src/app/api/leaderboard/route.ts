@@ -1,5 +1,16 @@
 import { NextResponse } from 'next/server';
 
+// Validasi entry leaderboard — hanya loloskan yang memiliki nama dan skor valid
+function isValidEntry(entry: any): boolean {
+  return (
+    entry &&
+    typeof entry.name === 'string' &&
+    entry.name.trim().length > 0 &&
+    typeof entry.score === 'number' &&
+    !isNaN(entry.score)
+  );
+}
+
 // Helper untuk membaca leaderboard
 async function getLeaderboard(): Promise<any[]> {
   const kvUrl = process.env.KV_REST_API_URL;
@@ -21,7 +32,8 @@ async function getLeaderboard(): Promise<any[]> {
       if (res.ok) {
         const data = await res.json();
         if (data && data.result) {
-          return JSON.parse(data.result);
+          const parsed = JSON.parse(data.result);
+          return Array.isArray(parsed) ? parsed.filter(isValidEntry) : [];
         }
       }
     } catch (e) {
@@ -42,20 +54,16 @@ async function getLeaderboard(): Promise<any[]> {
     // Cek keberadaan file
     const exists = await fs.access(filePath).then(() => true).catch(() => false);
     if (!exists) {
-      const defaultScores = [
-        {}
-      ];
-      await fs.writeFile(filePath, JSON.stringify(defaultScores, null, 2), 'utf-8');
-      return defaultScores;
+      await fs.writeFile(filePath, JSON.stringify([], null, 2), 'utf-8');
+      return [];
     }
 
     const fileContent = await fs.readFile(filePath, 'utf-8');
-    return JSON.parse(fileContent);
+    const parsed = JSON.parse(fileContent);
+    return Array.isArray(parsed) ? parsed.filter(isValidEntry) : [];
   } catch (e) {
     console.error('Gagal membaca file leaderboard:', e);
-    return [
-      { }
-    ];
+    return [];
   }
 }
 
