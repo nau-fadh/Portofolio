@@ -1167,3 +1167,513 @@ kbd {
   box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.05) !important;
 }
 
+/* Light theme - Hardcoded dark color overrides for component inline classes */
+.light .bg-gray-950 {
+  background-color: #f3f4f6 !important;
+}
+
+.light .bg-gray-900 {
+  background-color: #e5e7eb !important;
+}
+
+.light .bg-gray-800 {
+  background-color: #d1d5db !important;
+}
+
+.light .bg-\[\#0d1117\] {
+  background-color: #ffffff !important;
+}
+
+.light .bg-\[\#0d1117\]\/95 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.light .bg-\[\#0d1117\]\/80 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.light .bg-\[\#090d13\] {
+  background-color: #f3f4f6 !important;
+}
+
+.light .bg-\[\#16213e\] {
+  background-color: #f3f4f6 !important;
+}
+
+.light .bg-\[\#16213e\]\/70 {
+  background-color: rgba(243, 244, 246, 0.7) !important;
+}
+
+.light .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+.light .text-gray-300 {
+  color: #4b5563 !important;
+}
+
+.light .text-gray-600 {
+  color: #6b7280 !important;
+}
+
+.light .text-white {
+  color: #1f2937 !important;
+}
+
+.light .text-cyan-400 {
+  color: #0077b6 !important;
+}
+
+.light .border-gray-800 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light .border-gray-700 {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.light .border-cyan-500\/30 {
+  border-color: rgba(0, 119, 182, 0.3) !important;
+}
+
+.light .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light .nav-dock-link {
+  color: #4b5563;
+}
+
+.light .nav-dock-link:hover {
+  color: var(--primary);
+  background-color: rgba(0, 119, 182, 0.06);
+}
+
+.light .language-toggle {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.light .language-toggle button {
+  color: #6b7280;
+}
+
+.light .language-toggle button.active {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #ffffff;
+}
+
+.light .language-toggle button:hover:not(.active) {
+  color: #1f2937;
+}
+
+.light #main-header .bg-card-bg {
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+.light .bento-icon {
+  box-shadow: 0 6px 16px rgba(0, 119, 182, 0.2);
+}
+
+.light .social-card:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 0 6px 16px rgba(0, 119, 182, 0.08);
+}
+
+.light #back-to-top {
+  color: #ffffff;
+}
+
+.light .hero-role-pill {
+  border-color: rgba(0, 119, 182, 0.25);
+  color: var(--primary);
+  background: rgba(0, 119, 182, 0.06);
+}
+
+.light .cta-primary {
+  color: #ffffff;
+}
+
+.light canvas {
+  opacity: 0.15;
+}
+
+.light .bg-cyan-500\/20 {
+  background-color: rgba(0, 119, 182, 0.12) !important;
+}
+
+.light .bg-purple-500\/20 {
+  background-color: rgba(147, 51, 234, 0.12) !important;
+}
+
+.light .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+/* ==========================================================================
+   OCEAN THEME
+   A deep blue/teal aesthetic with vibrant aqua accents
+   ========================================================================== */
+.ocean {
+  --primary: #06d6a0;
+  --secondary: #118ab2;
+  --accent: #ef476f;
+  --text: #e0f7fa;
+  --bg: #0a192f;
+  --card-bg: #112240;
+}
+
+/* Ocean - Body & General */
+.ocean body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.ocean .card {
+  box-shadow: 0 10px 30px rgba(6, 214, 160, 0.06);
+  border: 1px solid rgba(6, 214, 160, 0.08);
+}
+
+.ocean .card:hover {
+  box-shadow: 0 20px 35px rgba(6, 214, 160, 0.1);
+  border-color: rgba(6, 214, 160, 0.25);
+}
+
+.ocean .giant-bg-text {
+  color: rgba(6, 214, 160, 0.04);
+}
+
+.ocean .hero-slideshow {
+  border: 4px solid rgba(6, 214, 160, 0.15) !important;
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.4);
+}
+
+.ocean .cta-ghost {
+  border: 1px solid rgba(6, 214, 160, 0.15);
+  color: var(--text);
+}
+
+.ocean .cta-ghost:hover {
+  background: rgba(6, 214, 160, 0.08);
+  border-color: var(--primary);
+}
+
+/* Ocean - Gradient overrides */
+.ocean .gradient-text {
+  background: linear-gradient(90deg, #06d6a0, #118ab2);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.ocean .gradient-btn {
+  background: linear-gradient(90deg, #06d6a0, #118ab2);
+}
+
+.ocean .gradient-btn:hover {
+  box-shadow: 0 10px 30px rgba(6, 214, 160, 0.3);
+}
+
+/* Ocean - Nav */
+.ocean .nav-dock-link:hover,
+.ocean .nav-dock-link.active {
+  background-color: rgba(6, 214, 160, 0.1);
+  color: var(--primary);
+}
+
+.ocean .language-toggle button.active {
+  background: linear-gradient(135deg, #06d6a0, #118ab2);
+  color: #0a192f;
+}
+
+/* Ocean - Section headings */
+.ocean .section-title::after {
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+/* Ocean - Skills */
+.ocean .skill-bar-fill {
+  background: linear-gradient(90deg, #06d6a0, #118ab2);
+  box-shadow: 0 0 15px rgba(6, 214, 160, 0.3);
+}
+
+.ocean .skill-icon {
+  background: rgba(6, 214, 160, 0.1);
+  border-color: rgba(6, 214, 160, 0.2);
+}
+
+/* Ocean - Projects */
+.ocean .proj-link {
+  color: var(--primary);
+}
+
+.ocean .proj-link:hover {
+  color: var(--secondary);
+}
+
+.ocean .carousel-btn {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Ocean - Tabs */
+.ocean .tab-toggle-group {
+  background-color: rgba(6, 214, 160, 0.06);
+  border: 1px solid rgba(6, 214, 160, 0.1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ocean .tab-toggle-btn {
+  color: #8892b0;
+}
+
+.ocean .tab-toggle-btn:hover:not(.tab-active) {
+  background-color: rgba(6, 214, 160, 0.08);
+  color: var(--primary);
+}
+
+.ocean .tab-toggle-btn.tab-active {
+  color: #0a192f !important;
+  background: linear-gradient(90deg, #06d6a0, #118ab2) !important;
+  box-shadow: 0 8px 20px rgba(6, 214, 160, 0.25);
+}
+
+/* Ocean - Timeline */
+.ocean .timeline {
+  border-left: 2px dashed rgba(6, 214, 160, 0.2);
+}
+
+.ocean .timeline-item {
+  background: var(--card-bg);
+  border: 2px solid var(--primary);
+  box-shadow: 0 0 15px rgba(6, 214, 160, 0.15);
+}
+
+/* Ocean - API Simulator */
+.ocean .api-btn {
+  background: rgba(6, 214, 160, 0.05);
+  border: 1px solid rgba(6, 214, 160, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ocean .api-btn:hover:not(.active-btn) {
+  background: rgba(6, 214, 160, 0.08);
+  border-color: rgba(6, 214, 160, 0.2);
+}
+
+.ocean .api-btn.active-btn {
+  background: rgba(6, 214, 160, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(6, 214, 160, 0.15);
+}
+
+.ocean .endpoint {
+  color: #8892b0;
+}
+
+.ocean .active-btn .endpoint {
+  color: var(--text);
+}
+
+.ocean #terminal-console::-webkit-scrollbar-thumb {
+  background: rgba(6, 214, 160, 0.2);
+}
+
+/* Ocean - ID Card */
+.ocean .id-card-body-container {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(6, 214, 160, 0.1);
+}
+
+.ocean .id-card-lanyard-string {
+  background: linear-gradient(to bottom, transparent, var(--primary));
+  opacity: 0.5;
+}
+
+.ocean .id-card-front {
+  background: #112240;
+  border: 1px solid rgba(6, 214, 160, 0.1);
+}
+
+.ocean .id-card-back {
+  background: #0d1b30;
+  border: 1px dashed rgba(6, 214, 160, 0.15);
+}
+
+.ocean kbd {
+  background: #1d3461 !important;
+  border-color: rgba(6, 214, 160, 0.15) !important;
+  color: var(--text) !important;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+}
+
+.ocean .scroll-reveal-container {
+  background-color: #0d1b30;
+}
+
+/* Ocean - AI Chat Widget */
+.ocean .ai-chat-window {
+  background-color: rgba(17, 34, 64, 0.97) !important;
+  border-color: rgba(6, 214, 160, 0.1) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+}
+
+.ocean .ai-chat-header {
+  background-color: rgba(10, 25, 47, 0.95) !important;
+  border-bottom-color: rgba(6, 214, 160, 0.1) !important;
+}
+
+.ocean .ai-chat-title {
+  color: var(--text) !important;
+}
+
+.ocean .ai-chat-model-bar {
+  background-color: #0d1b30 !important;
+  border-bottom-color: rgba(6, 214, 160, 0.08) !important;
+}
+
+.ocean .ai-chat-model-bar select {
+  background-color: #112240 !important;
+  color: var(--text) !important;
+  border-color: rgba(6, 214, 160, 0.1) !important;
+}
+
+.ocean .ai-chat-bubble-assistant,
+.ocean .ai-chat-typing {
+  background-color: rgba(6, 214, 160, 0.08) !important;
+  color: var(--text) !important;
+  border-color: rgba(6, 214, 160, 0.1) !important;
+}
+
+.ocean .ai-chat-bubble-user {
+  background: linear-gradient(90deg, rgba(6, 214, 160, 0.15), rgba(17, 138, 178, 0.15)) !important;
+  color: #a8edda !important;
+  border-color: rgba(6, 214, 160, 0.2) !important;
+}
+
+.ocean .ai-chat-footer {
+  background-color: rgba(10, 25, 47, 0.9) !important;
+  border-top-color: rgba(6, 214, 160, 0.08) !important;
+}
+
+.ocean .ai-chat-input {
+  background-color: #112240 !important;
+  color: var(--text) !important;
+  border-color: rgba(6, 214, 160, 0.1) !important;
+}
+
+.ocean .ai-chat-input::placeholder {
+  color: #5a7a9a !important;
+}
+
+.ocean .ai-chat-trigger {
+  border-color: rgba(6, 214, 160, 0.2) !important;
+  background: linear-gradient(135deg, #06d6a0, #118ab2) !important;
+}
+
+.ocean .status-dot {
+  border-color: #0a192f !important;
+}
+
+.ocean #game-stage {
+  background-color: #0d1b30 !important;
+  border-color: rgba(6, 214, 160, 0.1) !important;
+  box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Ocean - Contact section */
+.ocean .contact-card {
+  border-color: rgba(6, 214, 160, 0.1);
+}
+
+.ocean .contact-card:hover {
+  border-color: rgba(6, 214, 160, 0.3);
+  box-shadow: 0 10px 30px rgba(6, 214, 160, 0.08);
+}
+
+/* Ocean - Bento cards */
+.ocean .bento-card {
+  background: linear-gradient(145deg, #112240, rgba(17, 34, 64, 0.7));
+  border: 1px solid rgba(6, 214, 160, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.ocean .bento-card:hover {
+  border-color: rgba(6, 214, 160, 0.25);
+  box-shadow: 0 20px 40px rgba(6, 214, 160, 0.06);
+}
+
+.ocean .bento-glow {
+  background: radial-gradient(circle, rgba(6, 214, 160, 0.1) 0%, transparent 70%);
+}
+
+.ocean .bpill {
+  background: rgba(6, 214, 160, 0.04);
+  border: 1px solid rgba(6, 214, 160, 0.12);
+  color: #a8b2d1;
+}
+
+.ocean .bpill:hover {
+  background: rgba(6, 214, 160, 0.15);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.ocean .bento-icon {
+  background: linear-gradient(135deg, #118ab2, #06d6a0);
+  box-shadow: 0 6px 16px rgba(6, 214, 160, 0.25);
+}
+
+.ocean .proj-pill {
+  background: rgba(6, 214, 160, 0.04);
+  border: 1px solid rgba(6, 214, 160, 0.1);
+  color: #8892b0;
+}
+
+.ocean .hero-role-pill {
+  border-color: rgba(6, 214, 160, 0.25);
+  color: var(--primary);
+}
+
+.ocean .cta-primary {
+  background: linear-gradient(135deg, #06d6a0, #118ab2);
+  box-shadow: 0 4px 20px rgba(6, 214, 160, 0.25);
+}
+
+.ocean .cta-primary:hover {
+  box-shadow: 0 8px 30px rgba(6, 214, 160, 0.45);
+}
+
+.ocean #back-to-top {
+  background: linear-gradient(135deg, #06d6a0, #118ab2);
+  color: #0a192f;
+  box-shadow: 0 4px 16px rgba(6, 214, 160, 0.3);
+}
+
+.ocean .skill-pill {
+  background-color: rgba(6, 214, 160, 0.06);
+  border: 1px solid rgba(6, 214, 160, 0.2);
+}
+
+.ocean .skill-pill:hover {
+  background-color: rgba(6, 214, 160, 0.15);
+  border-color: var(--primary);
+}
+
+.ocean .social-card:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 0 6px 16px rgba(6, 214, 160, 0.08);
+}
+
+.ocean #contact a:hover {
+  box-shadow: 0 10px 20px rgba(6, 214, 160, 0.1);
+}
+
+/* Ocean - Canvas background adjustment */
+.ocean canvas {
+  opacity: 0.4;
+}
+

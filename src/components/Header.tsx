@@ -74,9 +74,9 @@ const Header: React.FC = () => {
           <button
             onClick={toggleTheme}
             className="w-9 h-9 rounded-xl bg-bg bg-opacity-40 hover:bg-opacity-80 border border-white border-opacity-5 flex items-center justify-center text-gray-400 hover:text-primary transition-all cursor-pointer text-xs"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={theme === 'dark' ? 'Switch to Light Mode' : theme === 'light' ? 'Switch to Ocean Mode' : 'Switch to Dark Mode'}
           >
-            <i className={`fas ${theme === 'dark' ? 'fa-sun text-yellow-400' : 'fa-moon text-blue-500'}`}></i>
+            <i className={`fas ${theme === 'dark' ? 'fa-sun text-yellow-400' : theme === 'light' ? 'fa-water text-cyan-400' : 'fa-moon text-blue-500'}`}></i>
           </button>
 
           <div className="language-toggle flex">

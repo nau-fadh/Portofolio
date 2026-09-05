@@ -403,6 +403,10 @@ const DinoGame: React.FC = () => {
       // Abaikan shortcut keyboard lompatan jika sedang mengisi input nama
       if (showNameInput) return;
 
+      // Abaikan jika user sedang mengetik di input, textarea, atau select
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable) return;
+
       if (e.code === 'Space') {
         e.preventDefault();
         triggerJumpAction();

@@ -17,6 +17,7 @@ const ChatWidget: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState('gemini-3.1-flash-lite');
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Inisialisasi pesan sambutan sesuai bahasa aktif
   useEffect(() => {
@@ -37,7 +38,12 @@ const ChatWidget: React.FC = () => {
   }, [messages, loading]);
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
+    const willOpen = !isOpen;
+    setIsOpen(willOpen);
+    if (willOpen) {
+      // Auto-focus input saat chat dibuka
+      setTimeout(() => inputRef.current?.focus(), 350);
+    }
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -187,9 +193,11 @@ const ChatWidget: React.FC = () => {
         {/* Input Form Footer */}
         <form onSubmit={handleSend} className="p-3 bg-[#16213e]/30 border-t border-white/5 flex gap-2 ai-chat-footer">
           <input
+            ref={inputRef}
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => e.stopPropagation()}
             placeholder={
               language === 'id'
                 ? 'Tanyakan tentang Naufal...'
