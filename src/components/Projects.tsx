@@ -17,7 +17,7 @@ interface Project {
 }
 
 const Projects: React.FC = () => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToDisplay, setSlidesToDisplay] = useState(3);
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -26,52 +26,52 @@ const Projects: React.FC = () => {
     {
       id: 1,
       image: "/assets/img/portfolio/Picture1.png",
-      tag: "IoT Integration",
+      tag: "IoT & RFID Telemetry",
       titleText: "Student Journey",
       descKey: "project1_description",
       techs: [
-        { name: "Laravel", icon: "fab fa-laravel", colorClass: "text-red-400" },
-        { name: "ASP.NET", icon: "fab fa-microsoft", colorClass: "text-blue-400" },
-        { name: "MySQL", icon: "fas fa-database", colorClass: "text-yellow-500" },
-        { name: "RFID", icon: "fas fa-id-card", colorClass: "text-purple-400" }
+        { name: "Laravel Core", icon: "fab fa-laravel", colorClass: "text-red-400" },
+        { name: "ASP.NET API", icon: "fab fa-microsoft", colorClass: "text-blue-400" },
+        { name: "MySQL Storage", icon: "fas fa-database", colorClass: "text-yellow-500" },
+        { name: "RFID Protocol", icon: "fas fa-id-card", colorClass: "text-purple-400" }
       ],
       githubUrl: "https://github.com/naufalfadh/Student-Journey"
     },
     {
       id: 2,
       image: "/assets/img/portfolio/portfolio-4.jpg",
-      tag: "Manufacturing",
+      tag: "Industrial Manufacturing",
       titleKey: "project2_title",
       descKey: "project2_description",
       techs: [
-        { name: "React.js", icon: "fab fa-react", colorClass: "text-cyan-400" },
-        { name: "Spring", icon: "fas fa-leaf", colorClass: "text-green-400" },
-        { name: "SSMS", icon: "fas fa-server", colorClass: "text-blue-400" },
-        { name: "Android Native", icon: "fab fa-android", colorClass: "text-emerald-400" }
+        { name: "React.js Client", icon: "fab fa-react", colorClass: "text-cyan-400" },
+        { name: "Spring Boot", icon: "fas fa-leaf", colorClass: "text-green-400" },
+        { name: "SSMS SQL", icon: "fas fa-server", colorClass: "text-blue-400" },
+        { name: "Android TV", icon: "fab fa-android", colorClass: "text-emerald-400" }
       ],
       githubUrl: "https://github.com/naufalfadh/PROJEK-MII"
     },
     {
       id: 3,
       image: "/assets/img/portfolio/astrahealth.png",
-      tag: "Enterprise App",
+      tag: "Healthcare Enterprise",
       titleText: "AstraHealth",
       descKey: "project3_description",
       techs: [
-        { name: "ASP.NET", icon: "fab fa-microsoft", colorClass: "text-blue-400" },
-        { name: "SSMS", icon: "fas fa-server", colorClass: "text-blue-400" }
+        { name: "ASP.NET Core", icon: "fab fa-microsoft", colorClass: "text-blue-400" },
+        { name: "SSMS SQL Server", icon: "fas fa-server", colorClass: "text-blue-400" }
       ],
       githubUrl: "https://github.com/naufalfadh/AstraHealth"
     },
     {
       id: 4,
       image: "/assets/img/portfolio/DigitalisasiIT.png",
-      tag: "Internal Tools",
+      tag: "Process Automation",
       titleText: "Digitalisasi IT",
       descKey: "project4_description",
       techs: [
-        { name: "ASP.NET", icon: "fab fa-microsoft", colorClass: "text-blue-400" },
-        { name: "SSMS", icon: "fas fa-server", colorClass: "text-blue-400" }
+        { name: "ASP.NET Core", icon: "fab fa-microsoft", colorClass: "text-blue-400" },
+        { name: "SSMS SQL Server", icon: "fas fa-server", colorClass: "text-blue-400" }
       ],
       isPrivate: true
     }
@@ -108,9 +108,9 @@ const Projects: React.FC = () => {
 
   // Autoplay functionality
   useEffect(() => {
-    const timer = setInterval(nextSlide, 5000);
+    const timer = setInterval(nextSlide, 6000);
     return () => clearInterval(timer);
-  }, [slidesToDisplay]); // Reset timer on slides display resize
+  }, [slidesToDisplay]);
 
   // Touch Support
   const touchStartX = useRef<number>(0);
@@ -136,17 +136,23 @@ const Projects: React.FC = () => {
   };
 
   return (
-    <section id="projects" className="py-24 relative overflow-hidden">
-      <div className="container mx-auto px-6 relative z-10">
+    <section id="projects" className="py-24 relative overflow-hidden bg-[#080809]/60 border-t border-white/[0.06]">
+      <div className="container mx-auto px-6 relative z-10 max-w-7xl">
 
-        {/* HEADER SECTION */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-gray-500 border-opacity-10 pb-8">
-          <div className="fade-in visible">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-text">
-              FEATURED <span className="gradient-text">PROJECTS</span>
+        {/* HEADER SECTION (OpenAI Editorial Style) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-white/[0.08] pb-8">
+          <div className="space-y-3">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/10">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+              <span className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-neutral-300 font-semibold">
+                02 // FEATURED SYSTEMS & DEPLOYMENTS
+              </span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-100 to-neutral-400">
+              {language === 'id' ? 'Projek & Rekayasa Perangkat Lunak' : 'Production Deployments & Systems'}
             </h2>
           </div>
-          <p className="max-w-md text-sm leading-relaxed opacity-70 fade-in visible text-gray-400">
+          <p className="max-w-md text-xs sm:text-sm leading-relaxed text-neutral-400 font-sans">
             {t('projects_description')}
           </p>
         </div>
@@ -172,25 +178,25 @@ const Projects: React.FC = () => {
                     className="carousel-slide flex-shrink-0 px-4"
                     style={{ width: `${100 / slidesToDisplay}%` }}
                   >
-                    <div className="card rounded-2xl overflow-hidden h-full flex flex-col justify-between">
+                    <div className="card rounded-2xl overflow-hidden h-full flex flex-col justify-between bg-white/[0.02] border border-white/10 backdrop-blur-md hover:border-white/20 transition-all">
                       <div>
-                        <div className="relative h-48 w-full overflow-hidden border-b border-gray-500 border-opacity-10">
+                        <div className="relative h-48 w-full overflow-hidden border-b border-white/[0.08]">
                           <Image
                             src={proj.image}
                             alt={title || "Project"}
                             fill
-                            className="w-full h-full object-cover project-img"
+                            className="w-full h-full object-cover project-img opacity-85 hover:opacity-100 transition-opacity"
                             unoptimized
                           />
-                          <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 bg-gray-900 bg-opacity-80 rounded-md text-cyan-400 border border-cyan-500 border-opacity-30">
+                          <span className="absolute top-3 left-3 text-[9px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 bg-black/80 backdrop-blur-md rounded-md text-cyan-300 border border-white/10">
                             {proj.tag}
                           </span>
                         </div>
                         <div className="p-6">
-                          <h3 className="text-xl font-bold mb-3 text-text tracking-tight">
+                          <h3 className="text-lg md:text-xl font-bold mb-3 text-text tracking-tight">
                             {title}
                           </h3>
-                          <p className="text-gray-400 text-xs md:text-sm leading-relaxed mb-6">
+                          <p className="text-neutral-400 text-xs md:text-sm leading-relaxed mb-6 font-sans">
                             {t(proj.descKey as any)}
                           </p>
                         </div>
@@ -198,26 +204,26 @@ const Projects: React.FC = () => {
                       <div className="p-6 pt-0">
                         <div className="flex flex-wrap gap-1.5 mb-5">
                           {proj.techs.map((tech, i) => (
-                            <span key={i} className="proj-pill">
+                            <span key={i} className="proj-pill font-mono text-[10px] bg-white/[0.03] border border-white/10 text-neutral-300">
                               <i className={`${tech.icon} ${tech.colorClass} text-[10px]`}></i>
                               {tech.name}
                             </span>
                           ))}
                         </div>
-                        <div className="pt-4 border-t border-gray-500 border-opacity-10 flex">
+                        <div className="pt-4 border-t border-white/[0.08] flex">
                           {proj.isPrivate ? (
-                            <span className="text-xs text-gray-500 italic flex items-center gap-1">
-                              <i className="fas fa-lock text-[10px]"></i> Internal Repository
+                            <span className="text-xs text-neutral-500 font-mono italic flex items-center gap-1.5">
+                              <i className="fas fa-lock text-[10px]"></i> Enterprise Internal Artifact
                             </span>
                           ) : (
                             <a
                               href={proj.githubUrl}
-                              className="proj-link group cursor-pointer"
+                              className="proj-link group cursor-pointer font-mono text-xs text-neutral-200 hover:text-white flex items-center space-x-1.5"
                               target="_blank"
                               rel="noopener noreferrer"
                             >
-                              <span>{t('view_code')}</span>
-                              <i className="fas fa-arrow-right text-xs transform group-hover:translate-x-1 transition-transform"></i>
+                              <span>Inspect Source Code</span>
+                              <span className="text-neutral-400 font-mono text-sm transform group-hover:translate-x-1 transition-transform">→</span>
                             </a>
                           )}
                         </div>
@@ -232,22 +238,22 @@ const Projects: React.FC = () => {
           {/* CAROUSEL NAVIGATION CONTROLS */}
           <button
             onClick={prevSlide}
-            className="carousel-btn carousel-btn-prev absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 md:-translate-x-6 bg-gray-800 bg-opacity-80 backdrop-blur-md rounded-full p-3 shadow-xl hover:bg-gray-700 transition-all z-20 border border-gray-700 cursor-pointer"
+            className="carousel-btn carousel-btn-prev absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 md:-translate-x-6 bg-[#080809]/90 hover:bg-neutral-800 backdrop-blur-md rounded-full p-3 shadow-2xl transition-all z-20 border border-white/10 cursor-pointer text-white"
             id="prevBtn"
             aria-label="Previous Project"
           >
-            <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path>
+            <svg className="w-4 h-4 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
             </svg>
           </button>
           <button
             onClick={nextSlide}
-            className="carousel-btn carousel-btn-next absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 md:translate-x-6 bg-gray-800 bg-opacity-80 backdrop-blur-md rounded-full p-3 shadow-xl hover:bg-gray-700 transition-all z-20 border border-gray-700 cursor-pointer"
+            className="carousel-btn carousel-btn-next absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 md:translate-x-6 bg-[#080809]/90 hover:bg-neutral-800 backdrop-blur-md rounded-full p-3 shadow-2xl transition-all z-20 border border-white/10 cursor-pointer text-white"
             id="nextBtn"
             aria-label="Next Project"
           >
-            <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"></path>
+            <svg className="w-4 h-4 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
             </svg>
           </button>
 
@@ -257,8 +263,8 @@ const Projects: React.FC = () => {
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`dot w-2.5 h-2.5 rounded-full transition-all cursor-pointer ${
-                  currentSlide === index ? 'active bg-cyan-400 scale-125' : 'bg-gray-700'
+                className={`dot w-2 h-2 rounded-full transition-all cursor-pointer ${
+                  currentSlide === index ? 'active bg-white scale-125 shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'bg-neutral-700'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               ></button>
@@ -272,9 +278,10 @@ const Projects: React.FC = () => {
             href="https://github.com/naufalfadh"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-8 py-3.5 border border-gray-700 text-gray-200 rounded-xl font-semibold hover:border-cyan-400 hover:text-cyan-400 hover:shadow-lg hover:shadow-cyan-500/5 transition-all text-sm"
+            className="inline-flex items-center space-x-2 px-7 py-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-neutral-200 rounded-full font-mono text-xs uppercase tracking-wider backdrop-blur-md transition-all hover:scale-105"
           >
-            <i className="fab fa-github mr-2"></i> View All Repositories
+            <i className="fab fa-github text-sm"></i>
+            <span>Browse Full GitHub Architecture Archive →</span>
           </a>
         </div>
 
