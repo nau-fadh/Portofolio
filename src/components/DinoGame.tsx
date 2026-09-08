@@ -438,31 +438,21 @@ const DinoGame: React.FC = () => {
   };
 
   return (
-    <section id="arcade-game" className="py-24 relative overflow-hidden bg-[#080809]/80 border-t border-white/[0.06]">
-      <div className="container mx-auto px-6 relative z-10 max-w-7xl">
+    <section id="arcade-game" className="py-16 relative overflow-hidden bg-gray-950 border-t border-white border-opacity-5">
+      <div className="container mx-auto px-6 relative z-10">
 
-        {/* Section Header (OpenAI Editorial Style) */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-white/[0.08] pb-8">
-          <div className="space-y-3">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-              <span className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-neutral-300 font-semibold">
-                05 // SYSTEM BREAK & TELEMETRY
-              </span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-100 to-neutral-400">
-              {language === 'id' ? 'Arcade Station Mini' : 'Offline Arcade Telemetry'}
-            </h2>
-          </div>
-          <p className="max-w-md text-xs sm:text-sm leading-relaxed text-neutral-400 font-sans">
-            {language === 'id'
-              ? 'Istirahat sejenak? Tekan SPACE atau sentuh layar untuk mengendalikan Dino melompati rintangan.'
-              : 'Need a computational pause? Press SPACE or tap screen to test reflex latencies against procedural obstacles.'}
+        {/* Section Header */}
+        <div className="max-w-3xl mx-auto text-center mb-8 fade-in visible">
+          <h2 className="text-3xl md:text-4xl font-black text-white">
+            OFFLINE <span className="gradient-text">ARCADE STATION</span>
+          </h2>
+          <p className="text-gray-400 text-xs md:text-sm mt-2">
+            Need a break? Press <kbd className="px-2 py-1 bg-gray-800 rounded text-xs border border-gray-700 text-white font-mono">SPACE</kbd> or tap the screen to jump!
           </p>
         </div>
 
         {/* Arcade Machine Wrapper */}
-        <div className="max-w-5xl mx-auto bg-white/[0.02] rounded-2xl border border-white/10 p-4 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-md fade-in visible">
+        <div className="max-w-4xl mx-auto bg-[#16213e] rounded-2xl border border-white border-opacity-5 p-4 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.4)] fade-in visible">
           
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
             

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../context/LanguageContext';
 
 interface MockResponse {
   status: string;
@@ -16,8 +15,8 @@ const apiMockDatabase: Record<string, MockResponse> = {
     data: {
       developer: "Naufal Fadhlurrohman",
       role: "Fullstack Developer / .NET Specialist",
-      experience_sectors: ["Manufacturing Systems", "Enterprise Architecture", "IoT Telemetry"],
-      core_runtime: ".NET Core 8.0/9.0 & ASP.NET WebAPI",
+      experience_sectors: ["Manufacturing Systems", "Enterprise Architecture", "IoT Logics"],
+      core_runtime: ".NET Core 8.0 & ASP.NET WebAPI",
       architecture_pattern: "Clean Architecture / CQRS Pattern",
       status: "Ready_For_Deployment"
     }
@@ -62,7 +61,6 @@ const apiMockDatabase: Record<string, MockResponse> = {
 };
 
 const ApiSimulator: React.FC = () => {
-  const { language } = useLanguage();
   const [activeKey, setActiveKey] = useState<string>('get-profile');
   const [loading, setLoading] = useState<boolean>(false);
   const [outputHtml, setOutputHtml] = useState<string>('');
@@ -80,34 +78,25 @@ const ApiSimulator: React.FC = () => {
       setStatusClass(mock.statusClass);
       setOutputHtml(JSON.stringify(mock.data, null, 4));
       setLoading(false);
-    }, 350);
+    }, 450);
   };
 
+  // Run default simulation on mount
   useEffect(() => {
     runSimulation('get-profile');
   }, []);
 
   return (
-    <section id="terminal-simulation" className="py-24 relative overflow-hidden bg-[#080809]/90 border-t border-white/[0.06]">
-      <div className="container mx-auto px-6 relative z-10 max-w-7xl">
+    <section id="terminal-simulation" className="py-20 relative overflow-hidden bg-gray-950">
+      <div className="container mx-auto px-6 relative z-10">
 
-        {/* SECTION HEADER (OpenAI Editorial Style) */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-white/[0.08] pb-8">
-          <div className="space-y-3">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-              <span className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-neutral-300 font-semibold">
-                04 // LIVE SYSTEM SANDBOX
-              </span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-100 to-neutral-400">
-              {language === 'id' ? 'Simulator API Interaktif' : 'Interactive API Playground'}
-            </h2>
-          </div>
-          <p className="max-w-md text-xs sm:text-sm leading-relaxed text-neutral-400 font-sans">
-            {language === 'id' 
-              ? 'Uji coba pemanggilan endpoint .NET WebAPI secara real-time untuk menginspeksi struktur payload dan respon arsitektur sistem.' 
-              : 'Simulate live .NET WebAPI requests in real-time to inspect distributed payload structures and server latency responses.'}
+        {/* Section Header */}
+        <div className="max-w-3xl mx-auto text-center mb-12 fade-in visible">
+          <h2 className="text-3xl md:text-4xl font-black text-white">
+            INTERACTIVE <span className="gradient-text">BACKEND SIMULATOR</span>
+          </h2>
+          <p className="text-gray-400 text-xs md:text-sm mt-3">
+            Click the endpoints below to simulate live .NET Web API requests and inspect real-time system responses.
           </p>
         </div>
 
@@ -115,9 +104,9 @@ const ApiSimulator: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-6xl mx-auto items-stretch">
 
           {/* LEFT: Endpoint Controller */}
-          <div className="lg:col-span-4 flex flex-col gap-2.5 justify-center fade-in visible font-mono">
-            <span className="text-[11px] font-bold tracking-wider text-neutral-500 uppercase px-1 mb-1">
-              Select REST Endpoint:
+          <div className="lg:col-span-4 flex flex-col gap-3 justify-center fade-in visible">
+            <span className="text-xs font-bold tracking-wider text-gray-500 uppercase px-1 mb-1">
+              Select Endpoint:
             </span>
 
             <button
@@ -125,7 +114,7 @@ const ApiSimulator: React.FC = () => {
               className={`api-btn ${activeKey === 'get-profile' ? 'active-btn' : ''}`}
             >
               <span className="method get">GET</span>
-              <span className="endpoint text-xs">/v1/dev/profile</span>
+              <span className="endpoint">/v1/dev/profile</span>
             </button>
 
             <button
@@ -133,7 +122,7 @@ const ApiSimulator: React.FC = () => {
               className={`api-btn ${activeKey === 'post-qc' ? 'active-btn' : ''}`}
             >
               <span className="method post">POST</span>
-              <span className="endpoint text-xs">/v1/factory/qc-form</span>
+              <span className="endpoint">/v1/factory/qc-form</span>
             </button>
 
             <button
@@ -141,7 +130,7 @@ const ApiSimulator: React.FC = () => {
               className={`api-btn ${activeKey === 'get-iot' ? 'active-btn' : ''}`}
             >
               <span className="method get">GET</span>
-              <span className="endpoint text-xs">/v1/hardware/rfid-log</span>
+              <span className="endpoint">/v1/hardware/rfid-log</span>
             </button>
 
             <button
@@ -149,39 +138,41 @@ const ApiSimulator: React.FC = () => {
               className={`api-btn ${activeKey === 'patch-infra' ? 'active-btn' : ''}`}
             >
               <span className="method patch">PATCH</span>
-              <span className="endpoint text-xs">/v1/infra/azure-devops</span>
+              <span className="endpoint">/v1/infra/azure-devops</span>
             </button>
           </div>
 
           {/* RIGHT: Code IDE / Terminal Window */}
           <div className="lg:col-span-8 flex flex-col fade-in visible">
-            <div className="w-full bg-[#080809] rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col h-[390px] overflow-hidden backdrop-blur-md">
+            <div className="w-full bg-[#0d1117] rounded-2xl border border-gray-800 shadow-2xl flex flex-col h-[380px] overflow-hidden">
               
               {/* Terminal Top Bar */}
-              <div className="bg-white/[0.02] px-4 py-3 border-b border-white/[0.08] flex items-center justify-between flex-shrink-0">
+              <div className="bg-[#161b22] px-4 py-3 border-b border-gray-800 flex items-center justify-between flex-shrink-0">
                 <div className="flex items-center space-x-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-neutral-600 inline-block"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-neutral-600 inline-block"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-neutral-600 inline-block"></span>
-                  <span className="text-[11px] text-neutral-400 font-mono ml-2">dotnet-core-runtime.service</span>
+                  <span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                  <span className="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                  <span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                  <span className="text-xs text-gray-500 font-mono ml-2">dotnet-run-portfolio.service</span>
                 </div>
-                <span className={`text-[9px] px-2.5 py-0.5 rounded-full border font-mono uppercase tracking-widest ${loading ? 'animate-pulse' : ''} ${statusClass}`}>
+                <span className={`text-[10px] px-2 py-0.5 rounded border font-mono uppercase tracking-widest ${loading ? 'animate-pulse' : ''} ${statusClass}`}>
                   {status}
                 </span>
               </div>
 
               {/* Terminal Output Console */}
-              <div className="p-5 font-mono text-xs md:text-sm overflow-y-auto flex-grow bg-transparent text-neutral-300 relative" id="terminal-console">
+              <div className="p-5 font-mono text-xs md:text-sm overflow-y-auto flex-grow bg-[#0d1117] text-gray-300 relative" id="terminal-console">
                 {loading ? (
-                  <div className="text-neutral-500 leading-relaxed space-y-1">
-                    <p>{"// Compiling pipeline execution query..."}</p>
-                    <p>{"// Resolving controller action binding..."}</p>
+                  <div className="text-gray-500 leading-relaxed">
+                    {"// Executing dotnet run pipeline..."}
+                    <br />
+                    {"// Fetching from secure internal server..."}
+                    <br />
                     <span className="inline-block animate-spin text-cyan-400 mt-2">
-                      <i className="fas fa-circle-notch text-sm"></i>
+                      <i className="fas fa-spinner"></i>
                     </span>
                   </div>
                 ) : (
-                  <pre className="text-cyan-300 leading-relaxed whitespace-pre-wrap font-mono selection:bg-cyan-500/20">
+                  <pre className="text-cyan-400 leading-relaxed whitespace-pre-wrap font-mono">
                     {outputHtml}
                   </pre>
                 )}
