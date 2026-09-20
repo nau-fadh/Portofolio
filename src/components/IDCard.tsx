@@ -162,10 +162,7 @@ const IDCard: React.FC = () => {
                 unoptimized
               />
             </div>
-            {/* Indikator Aksen Barcode Karyawan Estetika Manufaktur */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-4/5 h-6 opacity-30 flex items-center justify-center border-t border-b border-white border-dashed text-[8px] font-mono tracking-[0.3em] text-white">
-              ||||| NAUFAL-F |||||
-            </div>
+           
           </div>
         </div>
       </div>
