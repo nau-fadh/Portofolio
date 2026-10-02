@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import { PROJECTS_3D, SKILLS_LIST, CAREER_LIST, createTextTexture, createHighwaySignTexture, Project3DData } from './WorldData';
+import { PROJECTS_3D, SKILLS_LIST, CAREER_LIST, createTextTexture, createHighwaySignTexture, createLeaderboardTexture, Project3DData } from './WorldData';
 import { createBrunoStyle3DName } from './Text3DLetters';
 import { sounds } from './SoundEffects';
 
@@ -24,6 +24,11 @@ export class WorldEnvironment {
   public isExpanding: boolean = false;
   public expandProgress: number = 0;
 
+  // Living World features: Swaying Trees and Flowing River
+  public swayingFoliage: { mesh: THREE.Mesh; baseRotZ: number; speed: number; phase: number }[] = [];
+  public waterMesh: THREE.Mesh | null = null;
+  public waterFlowOffset: number = 0;
+
   public startExpandAnimation() {
     this.isExpanding = true;
     this.expandProgress = 0;
@@ -40,6 +45,8 @@ export class WorldEnvironment {
     this.buildExperienceHighway();
     this.buildContactZone();
     this.buildStuntPlayground();
+    this.buildRiverAndBridge();
+    this.buildRacingCircuitAndLeaderboard();
   }
 
   // -------------------------------------------------------------
@@ -691,9 +698,497 @@ export class WorldEnvironment {
   }
 
   // -------------------------------------------------------------
-  // UPDATE LOOP (SYNC DYNAMIC RIGID BODIES & TRIGGERS)
+  // 7. FLOWING RIVER & WOODEN BRIDGE & SWAYING TREES
   // -------------------------------------------------------------
-  public update(carPosition: THREE.Vector3) {
+  private buildRiverAndBridge() {
+    // 1. River Channel
+    // A sunken water bed cutting across from Z = -55 to Z = 55 at X around 13
+    const riverWidth = 7;
+    const riverLength = 110;
+    const riverCenterX = 13;
+    const riverCenterZ = 0;
+
+    // River bed (darker moist gravel underneath)
+    const bedGeo = new THREE.PlaneGeometry(riverWidth + 1.5, riverLength);
+    bedGeo.rotateX(-Math.PI / 2);
+    const bedMat = new THREE.MeshStandardMaterial({
+      color: 0x334155,
+      roughness: 0.9,
+    });
+    const bedMesh = new THREE.Mesh(bedGeo, bedMat);
+    bedMesh.position.set(riverCenterX, 0.02, riverCenterZ);
+    bedMesh.receiveShadow = true;
+    this.scene.add(bedMesh);
+
+    // River Water surface with flowing procedural texture
+    const waterCanvas = document.createElement('canvas');
+    waterCanvas.width = 512;
+    waterCanvas.height = 512;
+    const wCtx = waterCanvas.getContext('2d');
+    if (wCtx) {
+      wCtx.fillStyle = '#0284c7';
+      wCtx.fillRect(0, 0, 512, 512);
+      // Gentle flowing wave highlights
+      wCtx.strokeStyle = 'rgba(224, 242, 254, 0.45)';
+      wCtx.lineWidth = 4;
+      for (let y = 0; y < 512; y += 32) {
+        wCtx.beginPath();
+        wCtx.moveTo(0, y);
+        for (let x = 0; x <= 512; x += 32) {
+          wCtx.quadraticCurveTo(x + 16, y + Math.sin(x * 0.05) * 8, x + 32, y);
+        }
+        wCtx.stroke();
+      }
+    }
+    const waterTex = new THREE.CanvasTexture(waterCanvas);
+    waterTex.wrapS = THREE.RepeatWrapping;
+    waterTex.wrapT = THREE.RepeatWrapping;
+    waterTex.repeat.set(2, 8);
+
+    const waterGeo = new THREE.PlaneGeometry(riverWidth, riverLength);
+    waterGeo.rotateX(-Math.PI / 2);
+    const waterMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      map: waterTex,
+      roughness: 0.1,
+      metalness: 0.2,
+      transparent: true,
+      opacity: 0.88,
+    });
+    this.waterMesh = new THREE.Mesh(waterGeo, waterMat);
+    this.waterMesh.position.set(riverCenterX, 0.06, riverCenterZ);
+    this.waterMesh.receiveShadow = true;
+    this.scene.add(this.waterMesh);
+
+    // Pebble shores along both edges of the river
+    const pebbleMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.8 });
+    for (let z = -50; z <= 50; z += 4.5) {
+      // West shore
+      const westPebble = new THREE.Mesh(new THREE.DodecahedronGeometry(0.3 + Math.random() * 0.25), pebbleMat);
+      westPebble.position.set(riverCenterX - riverWidth / 2 + Math.random() * 0.4, 0.15, z + Math.random() * 2);
+      westPebble.rotation.set(Math.random(), Math.random(), Math.random());
+      westPebble.castShadow = true;
+      this.scene.add(westPebble);
+
+      // East shore
+      const eastPebble = new THREE.Mesh(new THREE.DodecahedronGeometry(0.3 + Math.random() * 0.25), pebbleMat);
+      eastPebble.position.set(riverCenterX + riverWidth / 2 - Math.random() * 0.4, 0.15, z + Math.random() * 2);
+      eastPebble.rotation.set(Math.random(), Math.random(), Math.random());
+      eastPebble.castShadow = true;
+      this.scene.add(eastPebble);
+    }
+
+    // 2. Wooden Bridge across the River at Z = 4
+    // Connects Welcome Plaza & Highway to Projects and Circuit
+    const bridgeZ = 4;
+    const bridgeWidth = 5.5; // Z direction
+    const bridgeSpan = riverWidth + 3.5; // X direction (approx 10.5)
+    const bridgeGroup = new THREE.Group();
+
+    // Wood materials
+    const plankMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.7 });
+    const beamMat = new THREE.MeshStandardMaterial({ color: 0x5c3a1e, roughness: 0.6 });
+
+    // Deck planks
+    const numPlanks = 16;
+    for (let i = 0; i < numPlanks; i++) {
+      const px = riverCenterX - bridgeSpan / 2 + (i + 0.5) * (bridgeSpan / numPlanks);
+      const plankGeo = new THREE.BoxGeometry((bridgeSpan / numPlanks) * 0.9, 0.22, bridgeWidth);
+      const plankMesh = new THREE.Mesh(plankGeo, plankMat);
+      plankMesh.position.set(px, 0.25, bridgeZ);
+      plankMesh.castShadow = true;
+      plankMesh.receiveShadow = true;
+      bridgeGroup.add(plankMesh);
+    }
+
+    // Wooden side support beams underneath
+    const beamGeo = new THREE.BoxGeometry(bridgeSpan, 0.35, 0.35);
+    const northBeam = new THREE.Mesh(beamGeo, beamMat);
+    northBeam.position.set(riverCenterX, 0.15, bridgeZ - bridgeWidth / 2 + 0.25);
+    northBeam.castShadow = true;
+    bridgeGroup.add(northBeam);
+
+    const southBeam = new THREE.Mesh(beamGeo, beamMat);
+    southBeam.position.set(riverCenterX, 0.15, bridgeZ + bridgeWidth / 2 - 0.25);
+    southBeam.castShadow = true;
+    bridgeGroup.add(southBeam);
+
+    // Railing posts & handrails
+    const postGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.2, 8);
+    const railGeo = new THREE.BoxGeometry(bridgeSpan, 0.12, 0.15);
+
+    const northRail = new THREE.Mesh(railGeo, beamMat);
+    northRail.position.set(riverCenterX, 0.95, bridgeZ - bridgeWidth / 2 + 0.15);
+    northRail.castShadow = true;
+    bridgeGroup.add(northRail);
+
+    const southRail = new THREE.Mesh(railGeo, beamMat);
+    southRail.position.set(riverCenterX, 0.95, bridgeZ + bridgeWidth / 2 - 0.15);
+    southRail.castShadow = true;
+    bridgeGroup.add(southRail);
+
+    // Posts along railing
+    for (let step = -4; step <= 4; step += 2) {
+      const posX = riverCenterX + step * 1.1;
+      const pNorth = new THREE.Mesh(postGeo, beamMat);
+      pNorth.position.set(posX, 0.65, bridgeZ - bridgeWidth / 2 + 0.15);
+      pNorth.castShadow = true;
+      bridgeGroup.add(pNorth);
+
+      const pSouth = new THREE.Mesh(postGeo, beamMat);
+      pSouth.position.set(posX, 0.65, bridgeZ + bridgeWidth / 2 - 0.15);
+      pSouth.castShadow = true;
+      bridgeGroup.add(pSouth);
+    }
+
+    // Smooth approach ramps on left and right for seamless car driving
+    const rampMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
+    const rampGeo = new THREE.BoxGeometry(1.6, 0.18, bridgeWidth);
+
+    const westRamp = new THREE.Mesh(rampGeo, rampMat);
+    westRamp.position.set(riverCenterX - bridgeSpan / 2 - 0.8, 0.12, bridgeZ);
+    westRamp.receiveShadow = true;
+    bridgeGroup.add(westRamp);
+
+    const eastRamp = new THREE.Mesh(rampGeo, rampMat);
+    eastRamp.position.set(riverCenterX + bridgeSpan / 2 + 0.8, 0.12, bridgeZ);
+    eastRamp.receiveShadow = true;
+    bridgeGroup.add(eastRamp);
+
+    this.scene.add(bridgeGroup);
+
+    // Cannon.js static physics collider for the bridge deck
+    const bridgeBody = new CANNON.Body({
+      type: CANNON.Body.STATIC,
+      position: new CANNON.Vec3(riverCenterX, 0.18, bridgeZ),
+      shape: new CANNON.Box(new CANNON.Vec3((bridgeSpan + 2.5) / 2, 0.15, bridgeWidth / 2)),
+      material: new CANNON.Material({ friction: 0.5, restitution: 0.05 }),
+    });
+    this.world.addBody(bridgeBody);
+
+    // 3. Living Swaying Trees (Pohon yang bergoyang-goyang)
+    const treePositions = [
+      { x: 8, z: -10, type: 'green', scale: 1.1 },
+      { x: 8.5, z: 12, type: 'sakura', scale: 1.2 },
+      { x: 9, z: -25, type: 'sakura', scale: 1.0 },
+      { x: 17.5, z: -14, type: 'green', scale: 1.3 },
+      { x: 18, z: 14, type: 'green', scale: 1.1 },
+      { x: 17.5, z: 30, type: 'sakura', scale: 1.25 },
+      { x: 7.5, z: 28, type: 'green', scale: 1.15 },
+      { x: -8, z: 8, type: 'green', scale: 1.0 },
+      { x: 8, z: -38, type: 'green', scale: 1.2 },
+      { x: 18, z: -40, type: 'sakura', scale: 1.1 },
+    ];
+
+    treePositions.forEach((tp, idx) => {
+      const treeGroup = new THREE.Group();
+      treeGroup.position.set(tp.x, 0, tp.z);
+      treeGroup.scale.set(tp.scale, tp.scale, tp.scale);
+
+      // Trunk
+      const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c3a1e, roughness: 0.9 });
+      const trunkMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.35, 2.2, 8), trunkMat);
+      trunkMesh.position.y = 1.1;
+      trunkMesh.castShadow = true;
+      treeGroup.add(trunkMesh);
+
+      // Foliage canopy
+      const isSakura = tp.type === 'sakura';
+      const leafMat = new THREE.MeshStandardMaterial({
+        color: isSakura ? (idx % 2 === 0 ? 0xf472b6 : 0xfb7185) : (idx % 2 === 0 ? 0x10b981 : 0x059669),
+        roughness: 0.5,
+        flatShading: true,
+      });
+
+      const canopyMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(1.3, 1), leafMat);
+      canopyMesh.position.y = 2.6;
+      canopyMesh.castShadow = true;
+      treeGroup.add(canopyMesh);
+
+      // Secondary puff
+      const puffMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(0.85, 1), leafMat);
+      puffMesh.position.set(0.3, 3.3, 0.2);
+      puffMesh.castShadow = true;
+      treeGroup.add(puffMesh);
+
+      this.scene.add(treeGroup);
+
+      // Swaying foliage reference for organic harmonic wind animation
+      this.swayingFoliage.push({
+        mesh: canopyMesh,
+        baseRotZ: 0,
+        speed: 1.6 + (idx % 4) * 0.4,
+        phase: idx * 1.3,
+      });
+      this.swayingFoliage.push({
+        mesh: puffMesh,
+        baseRotZ: 0,
+        speed: 2.0 + (idx % 3) * 0.3,
+        phase: idx * 1.7 + 0.5,
+      });
+
+      // Trunk static physics body
+      const treeBody = new CANNON.Body({
+        type: CANNON.Body.STATIC,
+        position: new CANNON.Vec3(tp.x, 1.0, tp.z),
+        shape: new CANNON.Cylinder(0.35 * tp.scale, 0.35 * tp.scale, 2.0, 6),
+      });
+      this.world.addBody(treeBody);
+    });
+  }
+
+  // -------------------------------------------------------------
+  // 8. RACING CIRCUIT & 3D DIGITAL LEADERBOARD
+  // -------------------------------------------------------------
+  private buildRacingCircuitAndLeaderboard() {
+    const circuitGroup = new THREE.Group();
+    const trackCenterX = 34;
+    const trackCenterZ = 28;
+
+    // Asphalt Track Materials
+    const asphaltMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b,
+      roughness: 0.85,
+    });
+    const kerbRedMat = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+    const kerbWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+    const laneWidth = 6.5;
+
+    // 1. South Straight (Start / Finish straightaway)
+    const southStraight = new THREE.Mesh(new THREE.PlaneGeometry(28, laneWidth), asphaltMat);
+    southStraight.rotateX(-Math.PI / 2);
+    southStraight.position.set(trackCenterX, 0.03, trackCenterZ - 10);
+    southStraight.receiveShadow = true;
+    circuitGroup.add(southStraight);
+
+    // 2. North Straight
+    const northStraight = new THREE.Mesh(new THREE.PlaneGeometry(28, laneWidth), asphaltMat);
+    northStraight.rotateX(-Math.PI / 2);
+    northStraight.position.set(trackCenterX, 0.03, trackCenterZ + 10);
+    northStraight.receiveShadow = true;
+    circuitGroup.add(northStraight);
+
+    // 3. West Straight
+    const westStraight = new THREE.Mesh(new THREE.PlaneGeometry(laneWidth, 20), asphaltMat);
+    westStraight.rotateX(-Math.PI / 2);
+    westStraight.position.set(trackCenterX - 14, 0.03, trackCenterZ);
+    westStraight.receiveShadow = true;
+    circuitGroup.add(westStraight);
+
+    // 4. East Straight
+    const eastStraight = new THREE.Mesh(new THREE.PlaneGeometry(laneWidth, 20), asphaltMat);
+    eastStraight.rotateX(-Math.PI / 2);
+    eastStraight.position.set(trackCenterX + 14, 0.03, trackCenterZ);
+    eastStraight.receiveShadow = true;
+    circuitGroup.add(eastStraight);
+
+    // 5. Red and White Checkered Kerbs on Corners
+    const cornerOffsets = [
+      { cx: trackCenterX - 14 - laneWidth / 2, cz: trackCenterZ - 10 - laneWidth / 2 },
+      { cx: trackCenterX + 14 + laneWidth / 2, cz: trackCenterZ - 10 - laneWidth / 2 },
+      { cx: trackCenterX + 14 + laneWidth / 2, cz: trackCenterZ + 10 + laneWidth / 2 },
+      { cx: trackCenterX - 14 - laneWidth / 2, cz: trackCenterZ + 10 + laneWidth / 2 },
+    ];
+
+    cornerOffsets.forEach((co) => {
+      for (let k = 0; k < 6; k++) {
+        const kerb = new THREE.Mesh(
+          new THREE.BoxGeometry(1.2, 0.15, 0.6),
+          k % 2 === 0 ? kerbRedMat : kerbWhiteMat
+        );
+        kerb.position.set(co.cx + (k - 2.5) * 1.0, 0.08, co.cz);
+        kerb.castShadow = true;
+        kerb.receiveShadow = true;
+        circuitGroup.add(kerb);
+      }
+    });
+
+    // 6. Start / Finish Line Checkered Striping on South Straight
+    const sfCanvas = document.createElement('canvas');
+    sfCanvas.width = 256;
+    sfCanvas.height = 64;
+    const sfCtx = sfCanvas.getContext('2d');
+    if (sfCtx) {
+      const squareSize = 16;
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 16; c++) {
+          sfCtx.fillStyle = (r + c) % 2 === 0 ? '#ffffff' : '#0f172a';
+          sfCtx.fillRect(c * squareSize, r * squareSize, squareSize, squareSize);
+        }
+      }
+    }
+    const sfTex = new THREE.CanvasTexture(sfCanvas);
+    const sfMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.2, laneWidth), new THREE.MeshBasicMaterial({ map: sfTex }));
+    sfMesh.rotateX(-Math.PI / 2);
+    sfMesh.position.set(trackCenterX - 3, 0.04, trackCenterZ - 10);
+    circuitGroup.add(sfMesh);
+
+    // 7. Start / Finish Gantry Archway Over Track
+    const gantryGroup = new THREE.Group();
+    const gantryMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.6, roughness: 0.3 });
+    const gantryPillarL = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 5, 12), gantryMat);
+    gantryPillarL.position.set(trackCenterX - 3, 2.5, trackCenterZ - 10 - laneWidth / 2 - 0.5);
+    gantryPillarL.castShadow = true;
+    gantryGroup.add(gantryPillarL);
+
+    const gantryPillarR = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 5, 12), gantryMat);
+    gantryPillarR.position.set(trackCenterX - 3, 2.5, trackCenterZ - 10 + laneWidth / 2 + 0.5);
+    gantryPillarR.castShadow = true;
+    gantryGroup.add(gantryPillarR);
+
+    const gantryBeam = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.5, laneWidth + 1.2), gantryMat);
+    gantryBeam.position.set(trackCenterX - 3, 4.8, trackCenterZ - 10);
+    gantryBeam.castShadow = true;
+    gantryGroup.add(gantryBeam);
+
+    // Gantry Signboard "NAUFAL SPEEDWAY • START / FINISH"
+    const gantrySignCanvas = document.createElement('canvas');
+    gantrySignCanvas.width = 512;
+    gantrySignCanvas.height = 128;
+    const gCtx = gantrySignCanvas.getContext('2d');
+    if (gCtx) {
+      gCtx.fillStyle = '#0f172a';
+      gCtx.fillRect(0, 0, 512, 128);
+      gCtx.strokeStyle = '#f59e0b';
+      gCtx.lineWidth = 6;
+      gCtx.strokeRect(6, 6, 500, 116);
+      gCtx.fillStyle = '#fbbf24';
+      gCtx.font = 'bold 36px Arial, sans-serif';
+      gCtx.textAlign = 'center';
+      gCtx.textBaseline = 'middle';
+      gCtx.fillText('🏁 START / FINISH 🏁', 256, 45);
+      gCtx.fillStyle = '#ffffff';
+      gCtx.font = 'bold 24px Arial, monospace';
+      gCtx.fillText('NAUFAL SPEEDWAY CIRCUIT', 256, 88);
+    }
+    const gantrySignTex = new THREE.CanvasTexture(gantrySignCanvas);
+    const gantrySignMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.2, 1.2, laneWidth * 0.8),
+      [
+        new THREE.MeshBasicMaterial({ map: gantrySignTex }),
+        new THREE.MeshBasicMaterial({ map: gantrySignTex }),
+        gantryMat,
+        gantryMat,
+        gantryMat,
+        gantryMat,
+      ]
+    );
+    gantrySignMesh.position.set(trackCenterX - 3, 4.2, trackCenterZ - 10);
+    gantryGroup.add(gantrySignMesh);
+
+    circuitGroup.add(gantryGroup);
+
+    // Gantry post physics bodies
+    const pLBody = new CANNON.Body({
+      type: CANNON.Body.STATIC,
+      position: new CANNON.Vec3(trackCenterX - 3, 2.5, trackCenterZ - 10 - laneWidth / 2 - 0.5),
+      shape: new CANNON.Cylinder(0.25, 0.25, 5, 8),
+    });
+    this.world.addBody(pLBody);
+
+    const pRBody = new CANNON.Body({
+      type: CANNON.Body.STATIC,
+      position: new CANNON.Vec3(trackCenterX - 3, 2.5, trackCenterZ - 10 + laneWidth / 2 + 0.5),
+      shape: new CANNON.Cylinder(0.25, 0.25, 5, 8),
+    });
+    this.world.addBody(pRBody);
+
+    // 8. 3D DIGITAL LEADERBOARD BILLBOARD
+    const leaderboardTex = createLeaderboardTexture();
+    const boardWidth = 9.5;
+    const boardHeight = 4.8;
+
+    const boardGroup = new THREE.Group();
+    boardGroup.position.set(trackCenterX, 0, trackCenterZ - 1);
+    boardGroup.rotation.y = -Math.PI / 12;
+
+    const pillarMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.8, roughness: 0.2 });
+    const post1 = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 6.5, 12), pillarMat);
+    post1.position.set(-boardWidth / 2 + 0.8, 3.25, 0);
+    post1.castShadow = true;
+    boardGroup.add(post1);
+
+    const post2 = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 6.5, 12), pillarMat);
+    post2.position.set(boardWidth / 2 - 0.8, 3.25, 0);
+    post2.castShadow = true;
+    boardGroup.add(post2);
+
+    const screenMat = new THREE.MeshStandardMaterial({
+      map: leaderboardTex,
+      roughness: 0.2,
+      metalness: 0.1,
+      emissive: 0x111827,
+      emissiveMap: leaderboardTex,
+      emissiveIntensity: 0.45,
+    });
+    const backMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.5 });
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.4 });
+
+    const screenMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(boardWidth, boardHeight, 0.4),
+      [
+        frameMat, frameMat, frameMat, frameMat,
+        screenMat,
+        backMat,
+      ]
+    );
+    screenMesh.position.set(0, 4.2, 0.2);
+    screenMesh.castShadow = true;
+    boardGroup.add(screenMesh);
+
+    // Spotlights on top
+    for (let s = -2; s <= 2; s += 2) {
+      const lamp = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.5, 8), new THREE.MeshStandardMaterial({ color: 0xfbbf24 }));
+      lamp.position.set(s * 1.8, 6.8, 0.5);
+      lamp.rotation.x = Math.PI / 4;
+      boardGroup.add(lamp);
+    }
+
+    circuitGroup.add(boardGroup);
+
+    // Physics collider for leaderboard
+    const boardBody = new CANNON.Body({
+      type: CANNON.Body.STATIC,
+      position: new CANNON.Vec3(boardGroup.position.x, 3.2, boardGroup.position.z),
+      shape: new CANNON.Box(new CANNON.Vec3(boardWidth / 2, 3.2, 0.4)),
+    });
+    this.world.addBody(boardBody);
+
+    // 9. Tire Stack Barriers (Crashable cylinders around circuit)
+    const tireMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.95 });
+    const tirePositions = [
+      { x: trackCenterX + 16, z: trackCenterZ + 14 },
+      { x: trackCenterX + 17, z: trackCenterZ + 13 },
+      { x: trackCenterX - 16, z: trackCenterZ + 14 },
+      { x: trackCenterX - 17, z: trackCenterZ + 13 },
+      { x: trackCenterX + 16, z: trackCenterZ - 13 },
+      { x: trackCenterX - 16, z: trackCenterZ - 13 },
+    ];
+
+    tirePositions.forEach((tp) => {
+      const tireMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 1.2, 12), tireMat);
+      tireMesh.position.set(tp.x, 0.6, tp.z);
+      tireMesh.castShadow = true;
+      circuitGroup.add(tireMesh);
+
+      const tireBody = new CANNON.Body({
+        mass: 15,
+        shape: new CANNON.Cylinder(0.7, 0.7, 1.2, 8),
+        position: new CANNON.Vec3(tp.x, 0.6, tp.z),
+        material: new CANNON.Material({ friction: 0.6, restitution: 0.3 }),
+      });
+      this.world.addBody(tireBody);
+      this.dynamicBoxes.push({ mesh: tireMesh, body: tireBody });
+    });
+
+    this.scene.add(circuitGroup);
+  }
+
+  // -------------------------------------------------------------
+  // UPDATE LOOP (SYNC DYNAMIC RIGID BODIES, ANIMATIONS & TRIGGERS)
+  // -------------------------------------------------------------
+  public update(carPosition: THREE.Vector3, delta: number = 0.016, time: number = 0) {
     // 0. Animate expanding circle ripple if started (saat diklik melebar)
     if (this.expandingRing && this.isExpanding) {
       this.expandProgress += 0.018;
@@ -706,7 +1201,21 @@ export class WorldEnvironment {
       }
     }
 
-    // 1. Sync Dynamic Skill Cubes
+    // 0b. Animate swaying foliage in the wind (Pohon bergoyang lembut dan organik)
+    for (const f of this.swayingFoliage) {
+      f.mesh.rotation.z = f.baseRotZ + Math.sin(time * f.speed + f.phase) * 0.06;
+      f.mesh.rotation.x = Math.cos(time * f.speed * 0.7 + f.phase) * 0.04;
+    }
+
+    // 0c. Animate river water flow (Sungai yang mengalir)
+    if (this.waterMesh) {
+      const mat = this.waterMesh.material as THREE.MeshStandardMaterial;
+      if (mat.map) {
+        mat.map.offset.y = (mat.map.offset.y + delta * 0.25) % 1;
+      }
+    }
+
+    // 1. Sync Dynamic Skill Cubes & Tire Barriers
     for (const b of this.dynamicBoxes) {
       b.mesh.position.set(b.body.position.x, b.body.position.y, b.body.position.z);
       b.mesh.quaternion.set(b.body.quaternion.x, b.body.quaternion.y, b.body.quaternion.z, b.body.quaternion.w);
@@ -733,7 +1242,11 @@ export class WorldEnvironment {
     this.nearestProject = closestProj;
 
     // 4. Determine Active Zone for HUD
-    if (carPosition.x > 8 && carPosition.z < 5) {
+    if (carPosition.x > 18 && carPosition.z > 14) {
+      this.activeZoneName = 'Racing Circuit & Speedway Leaderboard';
+    } else if (Math.abs(carPosition.x - 13) < 4 && Math.abs(carPosition.z - 4) < 5) {
+      this.activeZoneName = 'River Crossing & Wooden Bridge';
+    } else if (carPosition.x > 8 && carPosition.z < 5) {
       this.activeZoneName = 'Featured Projects Zone';
     } else if (carPosition.x < -10 && carPosition.z > -16) {
       this.activeZoneName = 'Skills Playground (Crashable Cubes)';

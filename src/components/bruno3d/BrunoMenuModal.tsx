@@ -20,12 +20,18 @@ export const BrunoMenuModal: React.FC<BrunoMenuModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'home' | 'controls' | 'teleport' | 'settings'>('home');
   const [isMuted, setIsMuted] = useState(sounds.getIsMuted());
+  const [isMusicEnabled, setIsMusicEnabled] = useState(sounds.getIsMusicEnabled());
 
   if (!isOpen) return null;
 
   const handleToggleSound = () => {
     const muted = sounds.toggleMute();
     setIsMuted(muted);
+  };
+
+  const handleToggleMusic = () => {
+    const enabled = sounds.toggleMusic();
+    setIsMusicEnabled(enabled);
   };
 
   return (
@@ -337,6 +343,22 @@ export const BrunoMenuModal: React.FC<BrunoMenuModalProps> = ({
                     <span className="text-[11px] text-gray-400">Tanjakan akrobat dan 10 pin bowling fisik</span>
                   </div>
                 </button>
+
+                <button
+                  onClick={() => {
+                    onTeleport(34, 1.2, 28);
+                    onClose();
+                  }}
+                  className="p-4 rounded-2xl bg-[#241a33] hover:bg-[#34254b] border border-white/10 hover:border-amber-400/40 text-left transition-all cursor-pointer flex items-center gap-3.5 group"
+                >
+                  <span className="text-2xl">🏎️</span>
+                  <div>
+                    <span className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors block">
+                      Racing Circuit & Leaderboard
+                    </span>
+                    <span className="text-[11px] text-gray-400">Sirkuit balap aspal dan billboard 3D waktu terbaik</span>
+                  </div>
+                </button>
               </div>
             </div>
           )}
@@ -366,6 +388,27 @@ export const BrunoMenuModal: React.FC<BrunoMenuModalProps> = ({
                     }`}
                   >
                     {isMuted ? 'Muted (Mati)' : 'Active (Aktif)'}
+                  </button>
+                </div>
+
+                {/* Background Music Toggle */}
+                <div className="p-4 rounded-2xl bg-[#241a33] border border-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">🎵</span>
+                    <div>
+                      <span className="text-sm font-bold text-white block">Background Music (BGM Lofi)</span>
+                      <span className="text-[11px] text-gray-400">Musik lofi santai pengiring eksplorasi pulau 3D</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleToggleMusic}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      !isMusicEnabled
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                        : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                    }`}
+                  >
+                    {!isMusicEnabled ? 'Off (Mati)' : 'Playing (Menyala)'}
                   </button>
                 </div>
 

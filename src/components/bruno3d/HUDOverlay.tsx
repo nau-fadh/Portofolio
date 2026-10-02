@@ -9,6 +9,7 @@ interface HUDOverlayProps {
   nearestProject: Project3DData | null;
   onOpenProject: (proj: Project3DData) => void;
   onOpenMenu: () => void;
+  onOpenMap: () => void;
 }
 
 export const HUDOverlay: React.FC<HUDOverlayProps> = ({
@@ -17,13 +18,14 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
   nearestProject,
   onOpenProject,
   onOpenMenu,
+  onOpenMap,
 }) => {
   return (
     <div className="fixed inset-0 pointer-events-none z-50 flex flex-col justify-between p-4 sm:p-6 select-none font-sans">
       {/* ------------------------------------------------------------- */}
-      {/* TOP BAR: Minimal Branding + Single Corner Menu Button (Image 4) */}
+      {/* TOP BAR: Minimal Branding + Double Corner Action Buttons (Menu & Map, Image 1) */}
       {/* ------------------------------------------------------------- */}
-      <header className="flex items-center justify-between w-full pointer-events-auto">
+      <header className="flex items-start justify-between w-full pointer-events-auto">
         {/* Brand & Status */}
         <div className="flex items-center space-x-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 shadow-xl">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-gray-950 font-black text-xs shadow-md">
@@ -42,17 +44,30 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
           </div>
         </div>
 
-        {/* Bruno Simon Signature Corner Menu Button (Image 4) */}
-        <button
-          onClick={onOpenMenu}
-          className="w-12 h-12 rounded-2xl bg-[#5c1b2c]/90 hover:bg-[#732338] border border-[#a83244]/60 backdrop-blur-md flex flex-col items-center justify-center gap-1.5 shadow-2xl transition-all cursor-pointer hover:scale-105 active:scale-95 group"
-          title="Buka Menu Portofolio (Home, Controls, Teleport, Settings)"
-          aria-label="Open Bruno Simon Menu"
-        >
-          <span className="w-5 h-[2px] bg-white rounded-full group-hover:bg-amber-300 transition-colors"></span>
-          <span className="w-5 h-[2px] bg-white rounded-full group-hover:bg-amber-300 transition-colors"></span>
-          <span className="w-5 h-[2px] bg-white rounded-full group-hover:bg-amber-300 transition-colors"></span>
-        </button>
+        {/* Vertical Stack of Corner Action Buttons: Menu & Map (Image 1 style) */}
+        <div className="flex flex-col gap-2.5 items-center">
+          {/* Hamburger Menu Button */}
+          <button
+            onClick={onOpenMenu}
+            className="w-12 h-12 rounded-2xl bg-[#5c1b2c]/90 hover:bg-[#732338] border border-[#a83244]/60 backdrop-blur-md flex flex-col items-center justify-center gap-1.5 shadow-2xl transition-all cursor-pointer hover:scale-105 active:scale-95 group"
+            title="Buka Menu Portofolio (Home, Controls, Teleport, Settings)"
+            aria-label="Open Bruno Simon Menu"
+          >
+            <span className="w-5 h-[2px] bg-white rounded-full group-hover:bg-amber-300 transition-colors"></span>
+            <span className="w-5 h-[2px] bg-white rounded-full group-hover:bg-amber-300 transition-colors"></span>
+            <span className="w-5 h-[2px] bg-white rounded-full group-hover:bg-amber-300 transition-colors"></span>
+          </button>
+
+          {/* Map Pin Button (Image 1 style) */}
+          <button
+            onClick={onOpenMap}
+            className="w-12 h-12 rounded-2xl bg-[#5c1b2c]/90 hover:bg-[#732338] border border-[#a83244]/60 backdrop-blur-md flex items-center justify-center shadow-2xl transition-all cursor-pointer hover:scale-105 active:scale-95 text-white group"
+            title="Buka Peta Pulau (Minimap)"
+            aria-label="Open World Minimap"
+          >
+            <span className="text-lg group-hover:scale-110 transition-transform">📍</span>
+          </button>
+        </div>
       </header>
 
       {/* ------------------------------------------------------------- */}

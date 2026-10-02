@@ -10,6 +10,7 @@ import { HUDOverlay } from './HUDOverlay';
 import { ProjectModal } from './ProjectModal';
 import { BrunoMenuModal } from './BrunoMenuModal';
 import { StartOverlay } from './StartOverlay';
+import { MapModal } from './MapModal';
 import { sounds } from './SoundEffects';
 
 interface WorldCanvasProps {
@@ -28,6 +29,7 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
   const [nearestProject, setNearestProject] = useState<Project3DData | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project3DData | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isMapOpen, setIsMapOpen] = useState<boolean>(false);
 
   // Mutable refs for high-frequency game loop
   const vehicleRef = useRef<ToyVehicle | null>(null);
@@ -276,7 +278,7 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
 
       // Update Environment
       const carPos = vehicle.mesh.position;
-      environment.update(carPos);
+      environment.update(carPos, delta, currentTime * 0.001);
 
       // Smoothly interpolate camera distance (zooms out from 12 to 24 on start)
       cameraAngleRef.current.distance = THREE.MathUtils.lerp(
@@ -392,7 +394,7 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
       {/* Intro 'CLICK TO START' Screen (Image 2 style) */}
       {!isStarted && <StartOverlay onStart={handleStartGame} />}
 
-      {/* Bruno Simon Style HUD Overlay (with Single Corner Menu Button) */}
+      {/* Bruno Simon Style HUD Overlay (with Single Corner Menu Button & Map Pin) */}
       {isStarted && (
         <HUDOverlay
           speed={speed}
@@ -400,6 +402,7 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
           nearestProject={nearestProject}
           onOpenProject={(proj) => setSelectedProject(proj)}
           onOpenMenu={() => setIsMenuOpen(true)}
+          onOpenMap={() => setIsMapOpen(true)}
         />
       )}
 
@@ -416,6 +419,17 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
         onTeleport={handleTeleport}
         onResetCar={handleResetCar}
         onSwitchToClassic={onSwitchToClassic}
+      />
+
+      {/* Island Minimap Modal (Image 2 style) */}
+      <MapModal
+        isOpen={isMapOpen}
+        onClose={() => setIsMapOpen(false)}
+        carPos={{
+          x: vehicleRef.current?.mesh.position.x || 0,
+          z: vehicleRef.current?.mesh.position.z || 0,
+        }}
+        onTeleport={handleTeleport}
       />
     </div>
   );

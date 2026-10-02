@@ -198,3 +198,93 @@ export function createHighwaySignTexture(
   texture.needsUpdate = true;
   return texture;
 }
+
+/**
+ * Creates high-resolution 3D digital electronic racing leaderboard texture
+ */
+export function createLeaderboardTexture(
+  scores = [
+    { rank: 1, name: 'NAUFAL FADHLURROHMAN', time: '00:24.82', badge: '🥇' },
+    { rank: 2, name: 'SPEED DEMON (C# .NET)', time: '00:26.15', badge: '🥈' },
+    { rank: 3, name: 'BRUNO GUEST RACER', time: '00:28.40', badge: '🥉' },
+    { rank: 4, name: 'FULLSTACK DRIFTER', time: '00:31.95', badge: '⚡' },
+    { rank: 5, name: 'ASP.NET TURBO DRIVER', time: '00:34.50', badge: '🏎️' },
+  ],
+  width = 2048,
+  height = 1024
+): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // Dark carbon fiber background
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(0, 0, width, height);
+
+    // Glowing Neon Border
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 16;
+    ctx.strokeRect(16, 16, width - 32, height - 32);
+
+    ctx.strokeStyle = '#06b6d4';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(32, 32, width - 64, height - 64);
+
+    // Header Title
+    ctx.fillStyle = '#fef08a';
+    ctx.font = 'black 84px Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🏁 GRAND PRIX RACETRACK LEADERBOARD 🏁', width / 2, 110);
+
+    // Header Divider
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(60, 180);
+    ctx.lineTo(width - 60, 180);
+    ctx.stroke();
+
+    // Table Column Headers
+    ctx.font = 'bold 44px Arial, monospace';
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'left';
+    ctx.fillText('POS', 90, 230);
+    ctx.fillText('RACER NAME', 280, 230);
+    ctx.textAlign = 'right';
+    ctx.fillText('BEST LAP TIME', width - 100, 230);
+
+    // Rows
+    const rowYStart = 310;
+    const rowHeight = 130;
+
+    scores.forEach((s, idx) => {
+      const y = rowYStart + idx * rowHeight;
+
+      // Row background zebra stripe
+      ctx.fillStyle = idx % 2 === 0 ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.2)';
+      ctx.fillRect(60, y - 50, width - 120, 100);
+
+      // Rank & Badge
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 52px Arial, sans-serif';
+      ctx.fillStyle = s.rank === 1 ? '#f59e0b' : s.rank === 2 ? '#e2e8f0' : s.rank === 3 ? '#b45309' : '#cbd5e1';
+      ctx.fillText(`${s.badge} #${s.rank}`, 90, y);
+
+      // Racer Name
+      ctx.font = 'bold 50px Arial, sans-serif';
+      ctx.fillStyle = s.rank === 1 ? '#ffffff' : '#e2e8f0';
+      ctx.fillText(s.name, 280, y);
+
+      // Lap Time (Digital Green / Amber)
+      ctx.textAlign = 'right';
+      ctx.font = 'black 54px monospace';
+      ctx.fillStyle = s.rank === 1 ? '#10b981' : '#38bdf8';
+      ctx.fillText(s.time, width - 100, y);
+    });
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
