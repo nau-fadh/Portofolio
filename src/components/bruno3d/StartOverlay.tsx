@@ -10,31 +10,26 @@ export const StartOverlay: React.FC<StartOverlayProps> = ({ onStart }) => {
   return (
     <div
       onClick={onStart}
-      className="fixed inset-0 z-40 flex flex-col items-center justify-center cursor-pointer select-none bg-black/25 backdrop-blur-[2px] transition-opacity duration-700 animate-fadeIn"
+      className="fixed inset-0 z-40 flex items-center justify-center cursor-pointer select-none bg-transparent transition-opacity duration-700 animate-fadeIn"
       title="Klik di mana saja untuk mulai bermain"
     >
-      {/* Hand-drawn style floating prompt next to car */}
-      <div className="relative flex flex-col items-center text-center space-y-3 pointer-events-auto transform -translate-y-6 sm:-translate-y-12">
-        {/* Curled animated arrow pointing down to car */}
-        <div className="text-white text-3xl sm:text-4xl animate-bounce">
-          ⤹
-        </div>
-
-        {/* Handwritten / Stylized Title */}
-        <div className="bg-[#120b1c]/80 backdrop-blur-md px-8 py-5 rounded-3xl border border-white/20 shadow-[0_0_50px_rgba(251,191,36,0.25)] flex flex-col items-center space-y-2 hover:scale-105 transition-transform">
-          <span className="text-2xl sm:text-4xl font-black tracking-widest text-white uppercase font-serif drop-shadow-md">
+      {/* Floating Prompt near the illuminated car circle (Image 1 style) */}
+      <div className="absolute top-[42%] right-[10%] sm:right-[20%] transform -translate-y-1/2 flex flex-col items-center space-y-2 pointer-events-auto text-white group hover:scale-105 transition-transform">
+        {/* Curled hand-drawn arrow pointing to the car on the left */}
+        <div className="flex items-center gap-2">
+          <span className="text-3xl sm:text-4xl transform -rotate-12 animate-pulse text-amber-300">
+            ⤹
+          </span>
+          <span className="text-2xl sm:text-3xl font-black tracking-widest text-white uppercase drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] font-serif">
             CLICK TO START
           </span>
-          <div className="flex items-center gap-2 text-xs font-mono text-amber-300">
-            <span className="text-base">🔊</span>
-            <span className="tracking-wide">SOUND ON • PRESS ANY KEY OR CLICK</span>
-          </div>
         </div>
 
-        {/* Small subtitle indicator */}
-        <span className="text-[11px] font-mono text-gray-300 bg-black/60 px-3 py-1 rounded-full border border-white/10">
-          Naufal Fadhlurrohman • 3D Driving Portfolio
-        </span>
+        {/* Audio speaker indicator */}
+        <div className="flex items-center gap-2 text-xs font-mono text-gray-200 bg-black/60 px-3.5 py-1.5 rounded-full border border-white/20 backdrop-blur-md shadow-lg">
+          <span className="text-base text-amber-300">🔊</span>
+          <span className="tracking-wider">SOUND ON</span>
+        </div>
       </div>
     </div>
   );

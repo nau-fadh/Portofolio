@@ -67,6 +67,8 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     setIsStarted(true);
     sounds.init();
     sounds.playZoneChime();
+    // Trigger expanding light ring animation (saat diklik melebar)
+    environmentRef.current?.startExpandAnimation();
     // Zoom out camera to full play distance
     cameraAngleRef.current.targetDistance = 24;
     cameraAngleRef.current.elevation = 0.65;
@@ -79,9 +81,12 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     // -------------------------------------------------------------
     // 1. THREE.JS SCENE, CAMERA, & RENDERER SETUP
     // -------------------------------------------------------------
+    const nightBg = new THREE.Color(0x0e0a1a);
+    const dayBg = new THREE.Color(0xdce5f2);
+
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xdce5f2);
-    scene.fog = new THREE.FogExp2(0xdce5f2, 0.012);
+    scene.background = nightBg.clone();
+    scene.fog = new THREE.FogExp2(0x0e0a1a, 0.016);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 300);
     camera.position.set(0, 10, 12);
@@ -98,10 +103,10 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     // -------------------------------------------------------------
     // 2. WARM STYLIZED LIGHTING
     // -------------------------------------------------------------
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff7ed, 1.4);
+    const sunLight = new THREE.DirectionalLight(0xfff7ed, 0.45);
     sunLight.position.set(35, 55, 30);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
@@ -318,6 +323,14 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
       sunLight.position.set(carPos.x + 35, 55, carPos.z + 30);
       sunLight.target.position.set(carPos.x, carPos.y, carPos.z);
       sunLight.target.updateMatrixWorld();
+
+      // Smoothly expand world lighting and sky color when game is started (saat diklik melebar)
+      if (isStartedRef.current) {
+        ambientLight.intensity = THREE.MathUtils.lerp(ambientLight.intensity, 0.85, delta * 1.8);
+        sunLight.intensity = THREE.MathUtils.lerp(sunLight.intensity, 1.4, delta * 1.8);
+        (scene.background as THREE.Color).lerp(dayBg, delta * 1.8);
+        (scene.fog as THREE.FogExp2).color.lerp(dayBg, delta * 1.8);
+      }
 
       // Throttle UI updates to ~15fps
       uiThrottleTimer += delta;

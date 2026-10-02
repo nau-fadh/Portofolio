@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { PROJECTS_3D, SKILLS_LIST, CAREER_LIST, createTextTexture, createHighwaySignTexture, Project3DData } from './WorldData';
+import { createBrunoStyle3DName } from './Text3DLetters';
 import { sounds } from './SoundEffects';
 
 export interface ZoneTrigger {
@@ -19,6 +20,14 @@ export class WorldEnvironment {
   public triggers: ZoneTrigger[] = [];
   public nearestProject: Project3DData | null = null;
   public activeZoneName: string = 'Welcome Area';
+  public expandingRing: THREE.Mesh | null = null;
+  public isExpanding: boolean = false;
+  public expandProgress: number = 0;
+
+  public startExpandAnimation() {
+    this.isExpanding = true;
+    this.expandProgress = 0;
+  }
 
   constructor(scene: THREE.Scene, world: CANNON.World, onOpenProject: (proj: Project3DData) => void) {
     this.scene = scene;
@@ -176,14 +185,129 @@ export class WorldEnvironment {
     lantern.position.set(-2.8, 3.2, 1.2);
     welcomeGroup.add(lantern);
 
-    const lampLight = new THREE.PointLight(0xfbbf24, 2.0, 10);
+    const lampLight = new THREE.PointLight(0xfbbf24, 2.2, 12);
     lampLight.position.set(-2.8, 3.2, 1.2);
     welcomeGroup.add(lampLight);
 
+    // 1. Wooden Park Bench behind spawn (Image 2 style)
+    const benchGroup = new THREE.Group();
+    benchGroup.position.set(0, 0, -2.6);
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.7 });
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
+    for (let i = 0; i < 3; i++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.16, 0.08), woodMat);
+      slat.position.set(0, 0.65 + i * 0.24, 0.45);
+      slat.castShadow = true;
+      benchGroup.add(slat);
+    }
+    for (let i = 0; i < 3; i++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.08, 0.22), woodMat);
+      slat.position.set(0, 0.42, 0.12 + i * 0.24);
+      slat.castShadow = true;
+      benchGroup.add(slat);
+    }
+    const legL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.7, 0.7), legMat);
+    legL.position.set(-1.5, 0.35, 0.35);
+    legL.castShadow = true;
+    benchGroup.add(legL);
+    const legR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.7, 0.7), legMat);
+    legR.position.set(1.5, 0.35, 0.35);
+    legR.castShadow = true;
+    benchGroup.add(legR);
+    welcomeGroup.add(benchGroup);
+
+    // 2. Pink Cherry Blossom (Sakura) Tree (Image 1 & 2 aesthetic)
+    const treeGroup = new THREE.Group();
+    treeGroup.position.set(-2.6, 0, -3.2);
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
+    const blossomMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.6 });
+    const blossomMat2 = new THREE.MeshStandardMaterial({ color: 0xfb7185, roughness: 0.6 });
+
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.4, 4.2, 8), trunkMat);
+    trunk.position.y = 2.1;
+    trunk.rotation.z = -0.1;
+    trunk.castShadow = true;
+    treeGroup.add(trunk);
+
+    const foliageOffsets = [
+      { x: 0.2, y: 4.2, z: 0.2, r: 1.6, mat: blossomMat },
+      { x: -0.8, y: 3.8, z: -0.4, r: 1.4, mat: blossomMat2 },
+      { x: 0.9, y: 3.6, z: 0.6, r: 1.3, mat: blossomMat },
+      { x: -0.4, y: 4.8, z: 0.3, r: 1.2, mat: blossomMat2 },
+      { x: 1.2, y: 4.2, z: -0.5, r: 1.1, mat: blossomMat },
+    ];
+    foliageOffsets.forEach((f) => {
+      const cluster = new THREE.Mesh(new THREE.DodecahedronGeometry(f.r, 1), f.mat);
+      cluster.position.set(f.x, f.y, f.z);
+      cluster.castShadow = true;
+      treeGroup.add(cluster);
+    });
+    welcomeGroup.add(treeGroup);
+
+    // 3. Wooden Notice Board with Map (Image 2 style)
+    const boardStand = new THREE.Group();
+    boardStand.position.set(4.4, 0, -1.6);
+    const infoBoardTex = createTextTexture('MAP & INFO', '#78350f', '#fef08a', 512, 256);
+    const boardFace = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 1.8, 0.15),
+      new THREE.MeshStandardMaterial({ map: infoBoardTex })
+    );
+    boardFace.position.y = 2.1;
+    boardFace.castShadow = true;
+    boardStand.add(boardFace);
+    const bLegL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.2, 8), woodMat);
+    bLegL.position.set(-1.0, 1.1, 0);
+    bLegL.castShadow = true;
+    boardStand.add(bLegL);
+    const bLegR = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.2, 8), woodMat);
+    bLegR.position.set(1.0, 1.1, 0);
+    bLegR.castShadow = true;
+    boardStand.add(bLegR);
+    welcomeGroup.add(boardStand);
+
+    // 4. Wooden Crates (Image 2 style)
+    const crateGeo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+    const crateTex = createTextTexture('📦', '#b45309', '#ffffff', 256, 256);
+    const crateMat = new THREE.MeshStandardMaterial({ map: crateTex, roughness: 0.7 });
+    const crate1 = new THREE.Mesh(crateGeo, crateMat);
+    crate1.position.set(4.6, 0.6, 6.2);
+    crate1.rotation.y = 0.3;
+    crate1.castShadow = true;
+    this.scene.add(crate1);
+
+    const crate2 = new THREE.Mesh(crateGeo, crateMat);
+    crate2.position.set(5.3, 0.6, 7.4);
+    crate2.rotation.y = -0.4;
+    crate2.castShadow = true;
+    this.scene.add(crate2);
+
+    const crate3 = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.0, 1.0), crateMat);
+    crate3.position.set(4.9, 1.7, 6.8);
+    crate3.rotation.y = 0.15;
+    crate3.castShadow = true;
+    this.scene.add(crate3);
+
+    // 5. Giant 3D Letters 'NAUFAL FADHLURROHMAN' (Image 2 style)
+    createBrunoStyle3DName(this.scene, this.world, new THREE.Vector3(0, 0, 7.8));
+
+    // 6. Expanding Animated Wave Ring on Ground
+    const expGeo = new THREE.RingGeometry(3.6, 4.4, 64);
+    const expMat = new THREE.MeshBasicMaterial({
+      color: 0xfbbf24,
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    this.expandingRing = new THREE.Mesh(expGeo, expMat);
+    this.expandingRing.rotation.x = -Math.PI / 2;
+    this.expandingRing.position.set(0, 0.04, 0);
+    this.scene.add(this.expandingRing);
+
     // Road Arrows on Ground
-    this.createRoadArrow(new THREE.Vector3(6, 0.05, 0), 0, 'PROJECTS ➔');
-    this.createRoadArrow(new THREE.Vector3(-6, 0.05, 0), Math.PI, '⬅ SKILLS');
-    this.createRoadArrow(new THREE.Vector3(0, 0.05, 6), Math.PI / 2, '⬇ EXPERIENCE');
+    this.createRoadArrow(new THREE.Vector3(7, 0.05, 0), 0, 'PROJECTS ➔');
+    this.createRoadArrow(new THREE.Vector3(-7, 0.05, 0), Math.PI, '⬅ SKILLS');
+    this.createRoadArrow(new THREE.Vector3(0, 0.05, 12), Math.PI / 2, '⬇ EXPERIENCE');
     this.createRoadArrow(new THREE.Vector3(0, 0.05, -8), -Math.PI / 2, '⬆ CONTACT & STUNT');
 
     this.scene.add(welcomeGroup);
@@ -570,6 +694,18 @@ export class WorldEnvironment {
   // UPDATE LOOP (SYNC DYNAMIC RIGID BODIES & TRIGGERS)
   // -------------------------------------------------------------
   public update(carPosition: THREE.Vector3) {
+    // 0. Animate expanding circle ripple if started (saat diklik melebar)
+    if (this.expandingRing && this.isExpanding) {
+      this.expandProgress += 0.018;
+      const currentScale = 1 + this.expandProgress * 36;
+      this.expandingRing.scale.set(currentScale, currentScale, 1);
+      (this.expandingRing.material as THREE.MeshBasicMaterial).opacity = Math.max(0, 0.9 * (1 - this.expandProgress));
+      if (this.expandProgress >= 1) {
+        this.isExpanding = false;
+        this.scene.remove(this.expandingRing);
+      }
+    }
+
     // 1. Sync Dynamic Skill Cubes
     for (const b of this.dynamicBoxes) {
       b.mesh.position.set(b.body.position.x, b.body.position.y, b.body.position.z);
