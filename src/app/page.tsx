@@ -33,18 +33,6 @@ export default function Home() {
         </div>
       ) : (
         <main className="min-h-screen relative">
-          {/* Top Banner to switch back to 3D Bruno Simon mode */}
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] animate-bounce">
-            <button
-              onClick={() => setViewMode('3d')}
-              className="px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-gray-950 font-black text-xs tracking-wider uppercase shadow-[0_0_25px_rgba(245,158,11,0.5)] flex items-center gap-2.5 cursor-pointer border border-white/20 hover:scale-105 active:scale-95 transition-all"
-            >
-              <span>🏎️</span>
-              <span>KEMBALI KE 3D WORLD (BRUNO SIMON)</span>
-              <i className="fas fa-play text-[10px]"></i>
-            </button>
-          </div>
-
           <CanvasBackground />
           <Hero />
           <Skills />
@@ -55,7 +43,7 @@ export default function Home() {
           <DinoGame />
           <Contact />
           <ChatWidget />
-          <Header />
+          <Header onSwitchTo3D={() => setViewMode('3d')} />
         </main>
       )}
     </>

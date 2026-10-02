@@ -4,7 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onSwitchTo3D?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onSwitchTo3D }) => {
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
@@ -66,6 +70,16 @@ const Header: React.FC = () => {
           <a href="#contact" onClick={(e) => handleLinkClick(e, '#contact')} className="nav-dock-link">
             {t('nav_contact')}
           </a>
+          {onSwitchTo3D && (
+            <button
+              onClick={onSwitchTo3D}
+              className="nav-dock-link flex items-center gap-1.5 font-bold text-amber-400 hover:text-amber-300 cursor-pointer bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/25 rounded-lg px-2.5 py-1 transition-all"
+              title="Buka Portofolio Dunia 3D Interaktif (Bruno Simon)"
+            >
+              <span>🏎️</span>
+              <span>Adventure</span>
+            </button>
+          )}
         </nav>
 
         {/* Right Side Controls */}
@@ -123,6 +137,18 @@ const Header: React.FC = () => {
             <a href="#contact" onClick={(e) => handleLinkClick(e, '#contact')} className="nav-dock-link px-3 py-2 block text-center">
               {t('nav_contact')}
             </a>
+            {onSwitchTo3D && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onSwitchTo3D();
+                }}
+                className="nav-dock-link px-3 py-2.5 flex items-center justify-center gap-2 font-bold text-amber-400 bg-amber-400/10 border border-amber-400/25 rounded-xl cursor-pointer mt-1"
+              >
+                <span>🏎️</span>
+                <span>Adventure (3D World)</span>
+              </button>
+            )}
           </div>
         </div>
       )}
