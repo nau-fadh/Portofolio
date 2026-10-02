@@ -16,13 +16,14 @@ export class ToyVehicle {
   public wheels: THREE.Mesh[] = [];
   public frontWheelPivots: THREE.Group[] = [];
   
-  // Physics parameters
-  private maxSpeed = 24;
-  private acceleration = 45;
-  private reverseSpeed = 12;
-  private turnSpeed = 2.8;
+  // Responsive arcade driving parameters
+  public maxSpeed = 26;
+  public acceleration = 35;
+  public reverseSpeed = 14;
+  public turnSpeed = 2.6;
+  public currentSpeed = 0;
+  public yawAngle = 0;
   private currentSteering = 0;
-  private currentSpeed = 0;
 
   // Visual effects
   private smokeParticles: { mesh: THREE.Mesh; life: number; maxLife: number; velocity: THREE.Vector3 }[] = [];
@@ -32,26 +33,27 @@ export class ToyVehicle {
 
   constructor(scene: THREE.Scene, world: CANNON.World, startPos: THREE.Vector3 = new THREE.Vector3(0, 1.2, 0)) {
     this.mesh = new THREE.Group();
+    this.yawAngle = 0;
 
     // -------------------------------------------------------------
-    // 1. CANNON.JS RIGID BODY (CHASSIS COLLIDER)
+    // 1. CANNON.JS RIGID BODY (LOW FRICTION CHASSIS COLLIDER)
     // -------------------------------------------------------------
-    const chassisShape = new CANNON.Box(new CANNON.Vec3(0.9, 0.35, 1.6));
+    const chassisShape = new CANNON.Box(new CANNON.Vec3(0.85, 0.3, 1.4));
     this.body = new CANNON.Body({
-      mass: 150,
+      mass: 80,
       shape: chassisShape,
       position: new CANNON.Vec3(startPos.x, startPos.y, startPos.z),
-      material: new CANNON.Material({ friction: 0.3, restitution: 0.1 }),
-      linearDamping: 0.15,
-      angularDamping: 0.3
+      material: new CANNON.Material({ friction: 0.05, restitution: 0.2 }),
+      linearDamping: 0.05,
+      angularDamping: 0.2
     });
     world.addBody(this.body);
 
     // Collision listener for physics sound effects
     this.body.addEventListener('collide', (e: any) => {
       const relativeVelocity = e.contact.getImpactVelocityAlongNormal();
-      if (Math.abs(relativeVelocity) > 2.5) {
-        sounds.playHit(Math.abs(relativeVelocity) / 10);
+      if (Math.abs(relativeVelocity) > 2.0) {
+        sounds.playHit(Math.abs(relativeVelocity) / 8);
       }
     });
 
@@ -63,7 +65,7 @@ export class ToyVehicle {
     // Main Chassis Body (Cyber Yellow/Orange with Bevel style)
     const bodyGeo = new THREE.BoxGeometry(1.6, 0.45, 2.9);
     const bodyMat = new THREE.MeshStandardMaterial({
-      color: 0xffb703, // Bruno Simon style warm vibrant orange-yellow
+      color: 0xffb703, // Bruno Simon warm vibrant orange-yellow
       roughness: 0.3,
       metalness: 0.1,
     });
@@ -112,13 +114,13 @@ export class ToyVehicle {
     carGroup.add(rightLight);
 
     // Headlight Spotlights
-    const spotL = new THREE.SpotLight(0xfff3b0, 1.2, 12, Math.PI / 6, 0.5);
+    const spotL = new THREE.SpotLight(0xfff3b0, 1.5, 14, Math.PI / 6, 0.5);
     spotL.position.set(-0.55, 0.3, 1.5);
     spotL.target.position.set(-0.55, 0, 7);
     carGroup.add(spotL);
     carGroup.add(spotL.target);
 
-    const spotR = new THREE.SpotLight(0xfff3b0, 1.2, 12, Math.PI / 6, 0.5);
+    const spotR = new THREE.SpotLight(0xfff3b0, 1.5, 14, Math.PI / 6, 0.5);
     spotR.position.set(0.55, 0.3, 1.5);
     spotR.target.position.set(0.55, 0, 7);
     carGroup.add(spotR);
@@ -133,7 +135,7 @@ export class ToyVehicle {
     carGroup.add(leftTail);
     carGroup.add(rightTail);
 
-    // Roof Antenna / Flag
+    // Roof Antenna & Mini Flag
     const antGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.7);
     const antMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const antenna = new THREE.Mesh(antGeo, antMat);
@@ -159,10 +161,10 @@ export class ToyVehicle {
     const rimMat = new THREE.MeshStandardMaterial({ color: 0xf8f9fa, metalness: 0.7, roughness: 0.2 });
 
     const wheelOffsets = [
-      { x: -0.92, y: -0.15, z: 1.0, isFront: true },  // Front Left
-      { x: 0.92, y: -0.15, z: 1.0, isFront: true },   // Front Right
-      { x: -0.92, y: -0.15, z: -1.0, isFront: false }, // Rear Left
-      { x: 0.92, y: -0.15, z: -1.0, isFront: false },  // Rear Right
+      { x: -0.92, y: -0.12, z: 1.0, isFront: true },  // Front Left
+      { x: 0.92, y: -0.12, z: 1.0, isFront: true },   // Front Right
+      { x: -0.92, y: -0.12, z: -1.0, isFront: false }, // Rear Left
+      { x: 0.92, y: -0.12, z: -1.0, isFront: false },  // Rear Right
     ];
 
     wheelOffsets.forEach((cfg) => {
@@ -210,72 +212,70 @@ export class ToyVehicle {
 
   public update(delta: number, inputs: VehicleInputs) {
     // -----------------------------------------------------------
-    // A. DRIVING & STEERING PHYSICS LOGIC
+    // A. RESPONSIVE INSTANT ACCELERATION & REVERSE
     // -----------------------------------------------------------
-    const heading = this.body.quaternion;
-    const forwardVec = new CANNON.Vec3(0, 0, 1);
-    heading.vmult(forwardVec, forwardVec);
-
-    // Handle acceleration & reverse
-    let targetSpeed = 0;
     if (inputs.forward) {
-      targetSpeed = this.maxSpeed;
+      this.currentSpeed = Math.min(this.currentSpeed + this.acceleration * delta, this.maxSpeed);
     } else if (inputs.backward) {
-      targetSpeed = -this.reverseSpeed;
-    }
-
-    if (inputs.brake) {
-      targetSpeed = 0;
-      this.currentSpeed = THREE.MathUtils.lerp(this.currentSpeed, 0, delta * 6);
+      this.currentSpeed = Math.max(this.currentSpeed - this.reverseSpeed * delta, -this.reverseSpeed);
     } else {
-      this.currentSpeed = THREE.MathUtils.lerp(
-        this.currentSpeed,
-        targetSpeed,
-        delta * (targetSpeed !== 0 ? (this.acceleration / this.maxSpeed) : 3.0)
-      );
+      // Natural coasting deceleration
+      this.currentSpeed = THREE.MathUtils.lerp(this.currentSpeed, 0, delta * 3.5);
     }
 
-    // Steering logic (higher response when moving)
-    let targetSteering = 0;
-    if (inputs.left) targetSteering += 0.55;
-    if (inputs.right) targetSteering -= 0.55;
-    this.currentSteering = THREE.MathUtils.lerp(this.currentSteering, targetSteering, delta * 10);
+    // Handbrake
+    if (inputs.brake) {
+      this.currentSpeed = THREE.MathUtils.lerp(this.currentSpeed, 0, delta * 9.0);
+    }
 
-    // Animate visual front wheel turn angle
+    // -----------------------------------------------------------
+    // B. RESPONSIVE STEERING & TURNING ANGLE
+    // -----------------------------------------------------------
+    let targetSteering = 0;
+    // Allow turning when moving, or turning slightly when accelerating
+    if (Math.abs(this.currentSpeed) > 0.3 || inputs.forward || inputs.backward) {
+      const dir = (this.currentSpeed >= 0 || inputs.forward) ? 1 : -1;
+      if (inputs.left) {
+        this.yawAngle += this.turnSpeed * delta * dir;
+        targetSteering = 0.52;
+      }
+      if (inputs.right) {
+        this.yawAngle -= this.turnSpeed * delta * dir;
+        targetSteering = -0.52;
+      }
+    } else {
+      if (inputs.left) targetSteering = 0.52;
+      if (inputs.right) targetSteering = -0.52;
+    }
+
+    // Smoothly turn front wheels visually
+    this.currentSteering = THREE.MathUtils.lerp(this.currentSteering, targetSteering, delta * 12);
     this.frontWheelPivots.forEach((pivot) => {
       pivot.rotation.y = this.currentSteering;
     });
 
-    // Apply linear driving force to physics body
-    const driveForce = forwardVec.scale(this.currentSpeed * 180);
-    this.body.applyForce(driveForce, this.body.position);
+    // -----------------------------------------------------------
+    // C. APPLY DIRECT VELOCITY VECTOR TO CANNON RIGID BODY
+    // -----------------------------------------------------------
+    // Forward vector in Three.js coordinate system (Z is forward when heading=0)
+    const forwardX = Math.sin(this.yawAngle);
+    const forwardZ = Math.cos(this.yawAngle);
 
-    // Apply angular torque steering
-    if (Math.abs(this.currentSpeed) > 0.5) {
-      const steerDirection = this.currentSpeed > 0 ? 1 : -1;
-      const torque = new CANNON.Vec3(0, this.currentSteering * this.turnSpeed * steerDirection * 550, 0);
-      this.body.applyTorque(torque);
-    }
+    // Set horizontal velocity directly to ensure instant, punchy, uninhibited driving!
+    // Note: this.body.velocity.y is preserved so gravity, ramps, and jumps work naturally!
+    this.body.velocity.x = forwardX * this.currentSpeed;
+    this.body.velocity.z = forwardZ * this.currentSpeed;
 
-    // Prevent car from flying away or flipping uncontrollably
-    this.body.angularVelocity.x *= 0.88;
-    this.body.angularVelocity.z *= 0.88;
-    
-    // Auto-upright stabilizer (ensures toy car returns to wheels smoothly if tilted)
-    const upVector = new CANNON.Vec3(0, 1, 0);
-    const currentUp = new CANNON.Vec3(0, 1, 0);
-    heading.vmult(currentUp, currentUp);
-    const tilt = upVector.cross(currentUp);
-    this.body.applyTorque(tilt.scale(-1200));
+    // Gently rotate body quaternion toward current yaw angle while preserving slope/tilt
+    const targetQuat = new CANNON.Quaternion();
+    targetQuat.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), this.yawAngle);
+    this.body.quaternion.slerp(targetQuat, 0.25, this.body.quaternion);
 
-    // Limit max velocity
-    const speed = this.body.velocity.length();
-    if (speed > this.maxSpeed * 1.2) {
-      this.body.velocity.scale(this.maxSpeed * 1.2 / speed, this.body.velocity);
-    }
+    // Prevent body from flipping upside down
+    this.body.angularVelocity.set(0, 0, 0);
 
     // -----------------------------------------------------------
-    // B. SYNC THREE.JS MESH WITH CANNON.JS BODY
+    // D. SYNC THREE.JS MESH WITH CANNON.JS BODY
     // -----------------------------------------------------------
     this.mesh.position.set(this.body.position.x, this.body.position.y, this.body.position.z);
     this.mesh.quaternion.set(
@@ -285,23 +285,21 @@ export class ToyVehicle {
       this.body.quaternion.w
     );
 
-    // Rotate wheels visually according to forward speed
+    // Spin wheels according to movement speed
     const wheelRotSpeed = (this.currentSpeed / 0.38) * delta;
     this.wheels.forEach((w) => {
       w.rotation.x += wheelRotSpeed;
     });
 
     // -----------------------------------------------------------
-    // C. AUDIO & DUST PARTICLES
+    // E. AUDIO & TIRE SMOKE
     // -----------------------------------------------------------
-    const speedRatio = Math.abs(speed) / this.maxSpeed;
+    const speedRatio = Math.abs(this.currentSpeed) / this.maxSpeed;
     sounds.updateEngine(speedRatio, inputs.forward || inputs.backward);
 
-    // Spawn smoke / dust when accelerating hard or turning sharply
-    if (Math.abs(this.currentSteering) > 0.2 && speed > 6) {
+    if ((inputs.brake || Math.abs(this.currentSteering) > 0.3) && Math.abs(this.currentSpeed) > 7) {
       this.spawnSmoke();
     }
-
     this.updateSmoke(delta);
   }
 
@@ -320,8 +318,8 @@ export class ToyVehicle {
     this.smokeParticles.push({
       mesh: smokeMesh,
       life: 0,
-      maxLife: 0.6 + Math.random() * 0.3,
-      velocity: new THREE.Vector3((Math.random() - 0.5) * 0.5, 0.8 + Math.random() * 0.5, (Math.random() - 0.5) * 0.5)
+      maxLife: 0.5 + Math.random() * 0.3,
+      velocity: new THREE.Vector3((Math.random() - 0.5) * 0.5, 0.8 + Math.random() * 0.4, (Math.random() - 0.5) * 0.5)
     });
   }
 
@@ -332,7 +330,7 @@ export class ToyVehicle {
       const progress = p.life / p.maxLife;
 
       p.mesh.position.addScaledVector(p.velocity, delta);
-      const scale = 0.5 + progress * 2.2;
+      const scale = 0.5 + progress * 2.0;
       p.mesh.scale.set(scale, scale, scale);
 
       (p.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, 0.4 * (1 - progress));
@@ -350,7 +348,8 @@ export class ToyVehicle {
     this.body.position.set(pos.x, pos.y, pos.z);
     this.body.velocity.set(0, 0, 0);
     this.body.angularVelocity.set(0, 0, 0);
-    this.body.quaternion.set(0, 0, 0, 1);
+    this.yawAngle = 0;
+    this.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), 0);
     this.currentSpeed = 0;
     this.currentSteering = 0;
   }

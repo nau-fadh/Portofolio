@@ -104,43 +104,65 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     environmentRef.current = environment;
 
     // -------------------------------------------------------------
-    // 5. INPUT EVENT LISTENERS (KEYBOARD)
+    // 5. INPUT EVENT LISTENERS (KEYBOARD & INTERACTION)
     // -------------------------------------------------------------
     const handleKeyDown = (e: KeyboardEvent) => {
       // Initialize audio on first keystroke
       sounds.init();
 
-      if (e.code === 'KeyW' || e.code === 'ArrowUp') inputsRef.current.forward = true;
-      if (e.code === 'KeyS' || e.code === 'ArrowDown') inputsRef.current.backward = true;
-      if (e.code === 'KeyA' || e.code === 'ArrowLeft') inputsRef.current.left = true;
-      if (e.code === 'KeyD' || e.code === 'ArrowRight') inputsRef.current.right = true;
-      if (e.code === 'Space') {
+      const k = e.key.toLowerCase();
+
+      if (e.code === 'KeyW' || e.code === 'ArrowUp' || k === 'w' || e.key === 'ArrowUp') {
+        inputsRef.current.forward = true;
+      }
+      if (e.code === 'KeyS' || e.code === 'ArrowDown' || k === 's' || e.key === 'ArrowDown') {
+        inputsRef.current.backward = true;
+      }
+      if (e.code === 'KeyA' || e.code === 'ArrowLeft' || k === 'a' || e.key === 'ArrowLeft') {
+        inputsRef.current.left = true;
+      }
+      if (e.code === 'KeyD' || e.code === 'ArrowRight' || k === 'd' || e.key === 'ArrowRight') {
+        inputsRef.current.right = true;
+      }
+      if (e.code === 'Space' || k === ' ') {
         e.preventDefault();
         inputsRef.current.brake = true;
       }
-      if (e.code === 'KeyH') {
+      if (e.code === 'KeyH' || k === 'h') {
         sounds.playHorn();
       }
-      if (e.code === 'KeyR') {
+      if (e.code === 'KeyR' || k === 'r') {
         vehicle.resetPosition(new THREE.Vector3(0, 1.2, 0));
         environment.resetObjects();
       }
-      if (e.code === 'Enter') {
+      if (e.code === 'Enter' || k === 'enter') {
         if (environment.nearestProject) {
           setSelectedProject(environment.nearestProject);
         }
       }
-      if (e.code === 'Escape') {
+      if (e.code === 'Escape' || k === 'escape') {
         setSelectedProject(null);
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'KeyW' || e.code === 'ArrowUp') inputsRef.current.forward = false;
-      if (e.code === 'KeyS' || e.code === 'ArrowDown') inputsRef.current.backward = false;
-      if (e.code === 'KeyA' || e.code === 'ArrowLeft') inputsRef.current.left = false;
-      if (e.code === 'KeyD' || e.code === 'ArrowRight') inputsRef.current.right = false;
-      if (e.code === 'Space') inputsRef.current.brake = false;
+      const k = e.key.toLowerCase();
+
+      if (e.code === 'KeyW' || e.code === 'ArrowUp' || k === 'w' || e.key === 'ArrowUp') {
+        inputsRef.current.forward = false;
+      }
+      if (e.code === 'KeyS' || e.code === 'ArrowDown' || k === 's' || e.key === 'ArrowDown') {
+        inputsRef.current.backward = false;
+      }
+      if (e.code === 'KeyA' || e.code === 'ArrowLeft' || k === 'a' || e.key === 'ArrowLeft') {
+        inputsRef.current.left = false;
+      }
+      if (e.code === 'KeyD' || e.code === 'ArrowRight' || k === 'd' || e.key === 'ArrowRight') {
+        inputsRef.current.right = false;
+      }
+      if (e.code === 'Space' || k === ' ') {
+        inputsRef.current.brake = false;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
