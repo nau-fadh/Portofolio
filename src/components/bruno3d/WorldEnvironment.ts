@@ -144,9 +144,45 @@ export class WorldEnvironment {
     });
     this.world.addBody(postBody);
 
+    // Glowing Circular Spawn Ring on Ground (Image 2 style)
+    const spawnRingGeo = new THREE.RingGeometry(3.6, 3.85, 48);
+    const spawnRingMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, side: THREE.DoubleSide });
+    const spawnRing = new THREE.Mesh(spawnRingGeo, spawnRingMat);
+    spawnRing.rotation.x = -Math.PI / 2;
+    spawnRing.position.set(0, 0.03, 0);
+    welcomeGroup.add(spawnRing);
+
+    const spawnDiscGeo = new THREE.CircleGeometry(3.6, 36);
+    const spawnDiscMat = new THREE.MeshStandardMaterial({ color: 0x221833, roughness: 0.8 });
+    const spawnDisc = new THREE.Mesh(spawnDiscGeo, spawnDiscMat);
+    spawnDisc.rotation.x = -Math.PI / 2;
+    spawnDisc.position.set(0, 0.02, 0);
+    spawnDisc.receiveShadow = true;
+    welcomeGroup.add(spawnDisc);
+
+    // Warm Retro Street Lamp next to the spawn circle (Image 2 aesthetic)
+    const lampPost = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.08, 0.1, 3.2, 8),
+      new THREE.MeshStandardMaterial({ color: 0x1f2937 })
+    );
+    lampPost.position.set(-2.8, 1.6, 1.2);
+    lampPost.castShadow = true;
+    welcomeGroup.add(lampPost);
+
+    const lantern = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.6, 0.5),
+      new THREE.MeshBasicMaterial({ color: 0xfbbf24 })
+    );
+    lantern.position.set(-2.8, 3.2, 1.2);
+    welcomeGroup.add(lantern);
+
+    const lampLight = new THREE.PointLight(0xfbbf24, 2.0, 10);
+    lampLight.position.set(-2.8, 3.2, 1.2);
+    welcomeGroup.add(lampLight);
+
     // Road Arrows on Ground
-    this.createRoadArrow(new THREE.Vector3(5, 0.05, 0), 0, 'PROJECTS ➔');
-    this.createRoadArrow(new THREE.Vector3(-5, 0.05, 0), Math.PI, '⬅ SKILLS');
+    this.createRoadArrow(new THREE.Vector3(6, 0.05, 0), 0, 'PROJECTS ➔');
+    this.createRoadArrow(new THREE.Vector3(-6, 0.05, 0), Math.PI, '⬅ SKILLS');
     this.createRoadArrow(new THREE.Vector3(0, 0.05, 6), Math.PI / 2, '⬇ EXPERIENCE');
     this.createRoadArrow(new THREE.Vector3(0, 0.05, -8), -Math.PI / 2, '⬆ CONTACT & STUNT');
 

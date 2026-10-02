@@ -8,7 +8,8 @@ import { WorldEnvironment } from './WorldEnvironment';
 import { Project3DData } from './WorldData';
 import { HUDOverlay } from './HUDOverlay';
 import { ProjectModal } from './ProjectModal';
-import { ControlsGuideModal } from './ControlsGuideModal';
+import { BrunoMenuModal } from './BrunoMenuModal';
+import { StartOverlay } from './StartOverlay';
 import { sounds } from './SoundEffects';
 
 interface WorldCanvasProps {
@@ -18,16 +19,20 @@ interface WorldCanvasProps {
 export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  // Intro 'CLICK TO START' state (Image 2 style)
+  const [isStarted, setIsStarted] = useState<boolean>(false);
+
   // React State for HUD & Modals
   const [speed, setSpeed] = useState<number>(0);
   const [currentZone, setCurrentZone] = useState<string>('Welcome Plaza');
   const [nearestProject, setNearestProject] = useState<Project3DData | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project3DData | null>(null);
-  const [isControlsModalOpen, setIsControlsModalOpen] = useState<boolean>(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
   // Mutable refs for high-frequency game loop
   const vehicleRef = useRef<ToyVehicle | null>(null);
   const environmentRef = useRef<WorldEnvironment | null>(null);
+  const isStartedRef = useRef<boolean>(false);
 
   // Driving inputs (W, A, S, D, Space)
   const inputsRef = useRef<VehicleInputs>({
@@ -41,8 +46,9 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
   // Camera Orbit controls (Arrow Keys + Mouse Drag)
   const cameraAngleRef = useRef({
     azimuth: 0, // Horizontal rotation in radians around the car
-    elevation: 0.65, // Vertical pitch angle (~37 deg)
-    distance: 24, // Distance from car
+    elevation: 0.5, // Vertical pitch angle
+    distance: 12, // Starts zoomed-in (12) for intro, zooms out to 24 when started!
+    targetDistance: 12,
   });
 
   const cameraKeysRef = useRef({
@@ -55,6 +61,17 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
   const isDraggingRef = useRef(false);
   const lastPointerPosRef = useRef({ x: 0, y: 0 });
 
+  const handleStartGame = () => {
+    if (isStartedRef.current) return;
+    isStartedRef.current = true;
+    setIsStarted(true);
+    sounds.init();
+    sounds.playZoneChime();
+    // Zoom out camera to full play distance
+    cameraAngleRef.current.targetDistance = 24;
+    cameraAngleRef.current.elevation = 0.65;
+  };
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -63,12 +80,11 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     // 1. THREE.JS SCENE, CAMERA, & RENDERER SETUP
     // -------------------------------------------------------------
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xdce5f2); // Soft atmospheric sky blue
+    scene.background = new THREE.Color(0xdce5f2);
     scene.fog = new THREE.FogExp2(0xdce5f2, 0.012);
 
-    // Free orbit perspective camera
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 300);
-    camera.position.set(0, 16, 22);
+    camera.position.set(0, 10, 12);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -80,7 +96,7 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     container.appendChild(renderer.domElement);
 
     // -------------------------------------------------------------
-    // 2. WARM STYLIZED LIGHTING (BRUNO SIMON LOOK)
+    // 2. WARM STYLIZED LIGHTING
     // -------------------------------------------------------------
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     scene.add(ambientLight);
@@ -127,6 +143,10 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     // 5. INPUT EVENT LISTENERS (KEYBOARD & MOUSE DRAG)
     // -------------------------------------------------------------
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isStartedRef.current) {
+        handleStartGame();
+      }
+
       sounds.init();
       const k = e.key.toLowerCase();
 
@@ -171,7 +191,7 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
       }
       if (e.code === 'Escape' || k === 'escape') {
         setSelectedProject(null);
-        setIsControlsModalOpen(false);
+        setIsMenuOpen(false);
       }
     };
 
@@ -253,9 +273,14 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
       const carPos = vehicle.mesh.position;
       environment.update(carPos);
 
-      // -----------------------------------------------------------
-      // DYNAMIC 360° CAMERA ORBIT CONTROLS (ARROW KEYS)
-      // -----------------------------------------------------------
+      // Smoothly interpolate camera distance (zooms out from 12 to 24 on start)
+      cameraAngleRef.current.distance = THREE.MathUtils.lerp(
+        cameraAngleRef.current.distance,
+        cameraAngleRef.current.targetDistance,
+        delta * 2.5
+      );
+
+      // Camera Orbit controls
       const camRotateSpeed = 2.4;
       if (cameraKeysRef.current.left) {
         cameraAngleRef.current.azimuth += camRotateSpeed * delta;
@@ -268,6 +293,11 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
       }
       if (cameraKeysRef.current.down) {
         cameraAngleRef.current.elevation = Math.max(0.18, cameraAngleRef.current.elevation - camRotateSpeed * 0.6 * delta);
+      }
+
+      // If not yet started, add gentle subtle camera drift
+      if (!isStartedRef.current) {
+        cameraAngleRef.current.azimuth += 0.15 * delta;
       }
 
       // Compute 3D camera position based on spherical coordinates
@@ -346,17 +376,19 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
         title="Klik dan seret mouse untuk memutar sudut pandang kamera 360°"
       />
 
-      {/* Bruno Simon Style HUD Overlay */}
-      <HUDOverlay
-        speed={speed}
-        currentZone={currentZone}
-        nearestProject={nearestProject}
-        onOpenProject={(proj) => setSelectedProject(proj)}
-        onTeleport={handleTeleport}
-        onResetCar={handleResetCar}
-        onSwitchToClassic={onSwitchToClassic}
-        onOpenControlsModal={() => setIsControlsModalOpen(true)}
-      />
+      {/* Intro 'CLICK TO START' Screen (Image 2 style) */}
+      {!isStarted && <StartOverlay onStart={handleStartGame} />}
+
+      {/* Bruno Simon Style HUD Overlay (with Single Corner Menu Button) */}
+      {isStarted && (
+        <HUDOverlay
+          speed={speed}
+          currentZone={currentZone}
+          nearestProject={nearestProject}
+          onOpenProject={(proj) => setSelectedProject(proj)}
+          onOpenMenu={() => setIsMenuOpen(true)}
+        />
+      )}
 
       {/* Project Detail Modal */}
       <ProjectModal
@@ -364,10 +396,13 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
         onClose={() => setSelectedProject(null)}
       />
 
-      {/* Game Controls & Camera Manual Book Modal */}
-      <ControlsGuideModal
-        isOpen={isControlsModalOpen}
-        onClose={() => setIsControlsModalOpen(false)}
+      {/* Bruno Simon Style Side-Panel Modal (Image 5 style) */}
+      <BrunoMenuModal
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onTeleport={handleTeleport}
+        onResetCar={handleResetCar}
+        onSwitchToClassic={onSwitchToClassic}
       />
     </div>
   );
