@@ -8,6 +8,7 @@ import { WorldEnvironment } from './WorldEnvironment';
 import { Project3DData } from './WorldData';
 import { HUDOverlay } from './HUDOverlay';
 import { ProjectModal } from './ProjectModal';
+import { ControlsGuideModal } from './ControlsGuideModal';
 import { sounds } from './SoundEffects';
 
 interface WorldCanvasProps {
@@ -17,15 +18,18 @@ interface WorldCanvasProps {
 export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // React State for HUD & Modal
+  // React State for HUD & Modals
   const [speed, setSpeed] = useState<number>(0);
   const [currentZone, setCurrentZone] = useState<string>('Welcome Plaza');
   const [nearestProject, setNearestProject] = useState<Project3DData | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project3DData | null>(null);
+  const [isControlsModalOpen, setIsControlsModalOpen] = useState<boolean>(false);
 
   // Mutable refs for high-frequency game loop
   const vehicleRef = useRef<ToyVehicle | null>(null);
   const environmentRef = useRef<WorldEnvironment | null>(null);
+
+  // Driving inputs (W, A, S, D, Space)
   const inputsRef = useRef<VehicleInputs>({
     forward: false,
     backward: false,
@@ -33,6 +37,23 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     right: false,
     brake: false,
   });
+
+  // Camera Orbit controls (Arrow Keys + Mouse Drag)
+  const cameraAngleRef = useRef({
+    azimuth: 0, // Horizontal rotation in radians around the car
+    elevation: 0.65, // Vertical pitch angle (~37 deg)
+    distance: 24, // Distance from car
+  });
+
+  const cameraKeysRef = useRef({
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+  });
+
+  const isDraggingRef = useRef(false);
+  const lastPointerPosRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const container = containerRef.current;
@@ -45,9 +66,9 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     scene.background = new THREE.Color(0xdce5f2); // Soft atmospheric sky blue
     scene.fog = new THREE.FogExp2(0xdce5f2, 0.012);
 
-    // Isometric-angled perspective camera
+    // Free orbit perspective camera
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.5, 300);
-    camera.position.set(0, 18, 22);
+    camera.position.set(0, 16, 22);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -59,7 +80,7 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     container.appendChild(renderer.domElement);
 
     // -------------------------------------------------------------
-    // 2. WARM STYLIZED LIGHTING (BRUNO SIMON SIGNATURE LOOK)
+    // 2. WARM STYLIZED LIGHTING (BRUNO SIMON LOOK)
     // -------------------------------------------------------------
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     scene.add(ambientLight);
@@ -79,7 +100,6 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     sunLight.shadow.bias = -0.0005;
     scene.add(sunLight);
 
-    // Fill blueish bounce light
     const hemiLight = new THREE.HemisphereLight(0xdce5f2, 0xc7d2fe, 0.6);
     scene.add(hemiLight);
 
@@ -87,7 +107,7 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     // 3. CANNON-ES PHYSICS WORLD
     // -------------------------------------------------------------
     const world = new CANNON.World({
-      gravity: new CANNON.Vec3(0, -25, 0), // Strong snappy gravity for toy car
+      gravity: new CANNON.Vec3(0, -25, 0),
     });
     world.defaultContactMaterial.friction = 0.3;
     world.defaultContactMaterial.restitution = 0.1;
@@ -104,33 +124,42 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     environmentRef.current = environment;
 
     // -------------------------------------------------------------
-    // 5. INPUT EVENT LISTENERS (KEYBOARD & INTERACTION)
+    // 5. INPUT EVENT LISTENERS (KEYBOARD & MOUSE DRAG)
     // -------------------------------------------------------------
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Initialize audio on first keystroke
       sounds.init();
-
       const k = e.key.toLowerCase();
 
-      if (e.code === 'KeyW' || e.code === 'ArrowUp' || k === 'w' || e.key === 'ArrowUp') {
-        inputsRef.current.forward = true;
-      }
-      if (e.code === 'KeyS' || e.code === 'ArrowDown' || k === 's' || e.key === 'ArrowDown') {
-        inputsRef.current.backward = true;
-      }
-      if (e.code === 'KeyA' || e.code === 'ArrowLeft' || k === 'a' || e.key === 'ArrowLeft') {
-        inputsRef.current.left = true;
-      }
-      if (e.code === 'KeyD' || e.code === 'ArrowRight' || k === 'd' || e.key === 'ArrowRight') {
-        inputsRef.current.right = true;
-      }
+      // Driving Keys (W, A, S, D, Space)
+      if (e.code === 'KeyW' || k === 'w') inputsRef.current.forward = true;
+      if (e.code === 'KeyS' || k === 's') inputsRef.current.backward = true;
+      if (e.code === 'KeyA' || k === 'a') inputsRef.current.left = true;
+      if (e.code === 'KeyD' || k === 'd') inputsRef.current.right = true;
       if (e.code === 'Space' || k === ' ') {
         e.preventDefault();
         inputsRef.current.brake = true;
       }
-      if (e.code === 'KeyH' || k === 'h') {
-        sounds.playHorn();
+
+      // Camera Orbit Keys (Arrow Keys ◀ ▲ ▼ ▶)
+      if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        cameraKeysRef.current.left = true;
       }
+      if (e.code === 'ArrowRight' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        cameraKeysRef.current.right = true;
+      }
+      if (e.code === 'ArrowUp' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        cameraKeysRef.current.up = true;
+      }
+      if (e.code === 'ArrowDown' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        cameraKeysRef.current.down = true;
+      }
+
+      // Action Keys
+      if (e.code === 'KeyH' || k === 'h') sounds.playHorn();
       if (e.code === 'KeyR' || k === 'r') {
         vehicle.resetPosition(new THREE.Vector3(0, 1.2, 0));
         environment.resetObjects();
@@ -142,31 +171,57 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
       }
       if (e.code === 'Escape' || k === 'escape') {
         setSelectedProject(null);
+        setIsControlsModalOpen(false);
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
 
-      if (e.code === 'KeyW' || e.code === 'ArrowUp' || k === 'w' || e.key === 'ArrowUp') {
-        inputsRef.current.forward = false;
-      }
-      if (e.code === 'KeyS' || e.code === 'ArrowDown' || k === 's' || e.key === 'ArrowDown') {
-        inputsRef.current.backward = false;
-      }
-      if (e.code === 'KeyA' || e.code === 'ArrowLeft' || k === 'a' || e.key === 'ArrowLeft') {
-        inputsRef.current.left = false;
-      }
-      if (e.code === 'KeyD' || e.code === 'ArrowRight' || k === 'd' || e.key === 'ArrowRight') {
-        inputsRef.current.right = false;
-      }
-      if (e.code === 'Space' || k === ' ') {
-        inputsRef.current.brake = false;
-      }
+      // Driving Keys
+      if (e.code === 'KeyW' || k === 'w') inputsRef.current.forward = false;
+      if (e.code === 'KeyS' || k === 's') inputsRef.current.backward = false;
+      if (e.code === 'KeyA' || k === 'a') inputsRef.current.left = false;
+      if (e.code === 'KeyD' || k === 'd') inputsRef.current.right = false;
+      if (e.code === 'Space' || k === ' ') inputsRef.current.brake = false;
+
+      // Camera Orbit Keys
+      if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft') cameraKeysRef.current.left = false;
+      if (e.code === 'ArrowRight' || e.key === 'ArrowRight') cameraKeysRef.current.right = false;
+      if (e.code === 'ArrowUp' || e.key === 'ArrowUp') cameraKeysRef.current.up = false;
+      if (e.code === 'ArrowDown' || e.key === 'ArrowDown') cameraKeysRef.current.down = false;
     };
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+
+    // Mouse Drag on Canvas to Rotate Camera Orbit
+    const handlePointerDown = (e: MouseEvent) => {
+      isDraggingRef.current = true;
+      lastPointerPosRef.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handlePointerMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      const dx = e.clientX - lastPointerPosRef.current.x;
+      const dy = e.clientY - lastPointerPosRef.current.y;
+      lastPointerPosRef.current = { x: e.clientX, y: e.clientY };
+
+      cameraAngleRef.current.azimuth -= dx * 0.006;
+      cameraAngleRef.current.elevation = Math.max(
+        0.18,
+        Math.min(1.35, cameraAngleRef.current.elevation + dy * 0.006)
+      );
+    };
+
+    const handlePointerUp = () => {
+      isDraggingRef.current = false;
+    };
+
+    const domEl = renderer.domElement;
+    domEl.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerUp);
 
     // Resize Handler
     const handleResize = () => {
@@ -191,28 +246,50 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
       // Step Cannon.js physics
       world.step(fixedTimeStep, delta, 3);
 
-      // Update Vehicle
+      // Update Vehicle (W, A, S, D)
       vehicle.update(delta, inputsRef.current);
 
-      // Update Environment dynamic items & zones
+      // Update Environment
       const carPos = vehicle.mesh.position;
       environment.update(carPos);
 
-      // Camera Smooth Follow (Smooth Isometric Offset)
+      // -----------------------------------------------------------
+      // DYNAMIC 360° CAMERA ORBIT CONTROLS (ARROW KEYS)
+      // -----------------------------------------------------------
+      const camRotateSpeed = 2.4;
+      if (cameraKeysRef.current.left) {
+        cameraAngleRef.current.azimuth += camRotateSpeed * delta;
+      }
+      if (cameraKeysRef.current.right) {
+        cameraAngleRef.current.azimuth -= camRotateSpeed * delta;
+      }
+      if (cameraKeysRef.current.up) {
+        cameraAngleRef.current.elevation = Math.min(1.35, cameraAngleRef.current.elevation + camRotateSpeed * 0.6 * delta);
+      }
+      if (cameraKeysRef.current.down) {
+        cameraAngleRef.current.elevation = Math.max(0.18, cameraAngleRef.current.elevation - camRotateSpeed * 0.6 * delta);
+      }
+
+      // Compute 3D camera position based on spherical coordinates
+      const { azimuth, elevation, distance } = cameraAngleRef.current;
+      const horizDist = Math.cos(elevation) * distance;
+      const vertDist = Math.sin(elevation) * distance;
+
       const targetCamPos = new THREE.Vector3(
-        carPos.x,
-        carPos.y + 15,
-        carPos.z + 18
+        carPos.x + Math.sin(azimuth) * horizDist,
+        carPos.y + vertDist,
+        carPos.z + Math.cos(azimuth) * horizDist
       );
-      camera.position.lerp(targetCamPos, delta * 3.5);
+
+      camera.position.lerp(targetCamPos, delta * 5.0);
       camera.lookAt(carPos.x, carPos.y + 0.8, carPos.z);
 
-      // Update Sun light position to follow car for high quality shadow maps
+      // Update Sun light position to follow car
       sunLight.position.set(carPos.x + 35, 55, carPos.z + 30);
       sunLight.target.position.set(carPos.x, carPos.y, carPos.z);
       sunLight.target.updateMatrixWorld();
 
-      // Throttle UI React State updates to ~15fps for maximum 60fps WebGL smoothness
+      // Throttle UI updates to ~15fps
       uiThrottleTimer += delta;
       if (uiThrottleTimer > 0.065) {
         uiThrottleTimer = 0;
@@ -227,11 +304,14 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
 
     animationFrameId = requestAnimationFrame(tick);
 
-    // Cleanup on unmount
+    // Cleanup
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      domEl.removeEventListener('mousedown', handlePointerDown);
+      window.removeEventListener('mousemove', handlePointerMove);
+      window.removeEventListener('mouseup', handlePointerUp);
       window.removeEventListener('resize', handleResize);
       if (container && renderer.domElement) {
         container.removeChild(renderer.domElement);
@@ -257,16 +337,14 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
     }
   };
 
-  // Mobile inputs update
-  const handleSetMobileInputs = (newInputs: Partial<VehicleInputs>) => {
-    sounds.init();
-    inputsRef.current = { ...inputsRef.current, ...newInputs };
-  };
-
   return (
     <div className="relative w-screen h-screen overflow-hidden select-none bg-[#dce5f2]">
       {/* 3D WebGL Canvas Container */}
-      <div ref={containerRef} className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing" />
+      <div
+        ref={containerRef}
+        className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
+        title="Klik dan seret mouse untuk memutar sudut pandang kamera 360°"
+      />
 
       {/* Bruno Simon Style HUD Overlay */}
       <HUDOverlay
@@ -277,13 +355,19 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({ onSwitchToClassic }) =
         onTeleport={handleTeleport}
         onResetCar={handleResetCar}
         onSwitchToClassic={onSwitchToClassic}
-        onSetMobileInputs={handleSetMobileInputs}
+        onOpenControlsModal={() => setIsControlsModalOpen(true)}
       />
 
       {/* Project Detail Modal */}
       <ProjectModal
         project={selectedProject}
         onClose={() => setSelectedProject(null)}
+      />
+
+      {/* Game Controls & Camera Manual Book Modal */}
+      <ControlsGuideModal
+        isOpen={isControlsModalOpen}
+        onClose={() => setIsControlsModalOpen(false)}
       />
     </div>
   );

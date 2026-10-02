@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import { PROJECTS_3D, SKILLS_LIST, CAREER_LIST, createTextTexture, Project3DData } from './WorldData';
+import { PROJECTS_3D, SKILLS_LIST, CAREER_LIST, createTextTexture, createHighwaySignTexture, Project3DData } from './WorldData';
 import { sounds } from './SoundEffects';
 
 export interface ZoneTrigger {
@@ -337,34 +337,45 @@ export class WorldEnvironment {
       const arch = new THREE.Group();
       arch.position.set(0, 0, zPos);
 
-      // Signboard
-      const tex = createTextTexture(`${item.company} | ${item.role} (${item.period})`, '#0284c7', '#ffffff', 1024, 180);
+      // Signboard texture (2048x512 high resolution)
+      const signTex = createHighwaySignTexture(item.company, item.role, item.period, 2048, 512);
+
+      const boardWidth = 11.5;
+      const boardHeight = 2.6;
+      const boardDepth = 0.25;
+
+      const frameMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6 });
+      const signMat = new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.3 });
+
+      // Multi-material box: [right, left, top, bottom, front, back]
+      // front (face index 4) and back (face index 5) both have the highway sign texture
+      const materials = [frameMat, frameMat, frameMat, frameMat, signMat, signMat];
       const sign = new THREE.Mesh(
-        new THREE.BoxGeometry(10, 1.8, 0.3),
-        new THREE.MeshStandardMaterial({ map: tex })
+        new THREE.BoxGeometry(boardWidth, boardHeight, boardDepth),
+        materials
       );
-      sign.position.y = 4.2;
+      sign.position.y = 4.3;
       sign.castShadow = true;
       arch.add(sign);
 
       // Support Poles
-      const poleGeo = new THREE.CylinderGeometry(0.15, 0.15, 4.5, 8);
-      const poleMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
+      const poleGeo = new THREE.CylinderGeometry(0.18, 0.18, 4.6, 12);
+      const poleMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 });
       const poleL = new THREE.Mesh(poleGeo, poleMat);
-      poleL.position.set(-4.8, 2.25, 0);
+      poleL.position.set(-5.5, 2.3, 0);
       poleL.castShadow = true;
       arch.add(poleL);
 
       const poleR = new THREE.Mesh(poleGeo, poleMat);
-      poleR.position.set(4.8, 2.25, 0);
+      poleR.position.set(5.5, 2.3, 0);
       poleR.castShadow = true;
       arch.add(poleR);
 
       this.scene.add(arch);
 
       // Pole physics colliders
-      const bL = new CANNON.Body({ mass: 0, shape: new CANNON.Cylinder(0.2, 0.2, 4.5, 8), position: new CANNON.Vec3(-4.8, 2.25, zPos) });
-      const bR = new CANNON.Body({ mass: 0, shape: new CANNON.Cylinder(0.2, 0.2, 4.5, 8), position: new CANNON.Vec3(4.8, 2.25, zPos) });
+      const bL = new CANNON.Body({ mass: 0, shape: new CANNON.Cylinder(0.2, 0.2, 4.6, 8), position: new CANNON.Vec3(-5.5, 2.3, zPos) });
+      const bR = new CANNON.Body({ mass: 0, shape: new CANNON.Cylinder(0.2, 0.2, 4.6, 8), position: new CANNON.Vec3(5.5, 2.3, zPos) });
       this.world.addBody(bL);
       this.world.addBody(bR);
     });

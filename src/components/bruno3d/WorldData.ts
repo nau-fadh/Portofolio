@@ -100,9 +100,15 @@ export const CAREER_LIST = [
 ];
 
 /**
- * Utility to generate crisp 2D text canvas textures for 3D billboards & physical blocks
+ * Utility to generate crisp 2D text canvas textures with automatic font-size fitting
  */
-export function createTextTexture(text: string, bgColor: string, textColor: string = '#ffffff', width = 512, height = 256): THREE.CanvasTexture {
+export function createTextTexture(
+  text: string,
+  bgColor: string,
+  textColor: string = '#ffffff',
+  width = 1024,
+  height = 256
+): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -111,15 +117,82 @@ export function createTextTexture(text: string, bgColor: string, textColor: stri
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, width, height);
 
-    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.lineWidth = 12;
-    ctx.strokeRect(6, 6, width - 12, height - 12);
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 14;
+    ctx.strokeRect(8, 8, width - 16, height - 16);
+
+    // Auto-fit font size to ensure text never gets cut off
+    let fontSize = Math.floor(height * 0.45);
+    ctx.font = `bold ${fontSize}px Arial, -apple-system, sans-serif`;
+    while (ctx.measureText(text).width > width - 60 && fontSize > 16) {
+      fontSize -= 2;
+      ctx.font = `bold ${fontSize}px Arial, -apple-system, sans-serif`;
+    }
 
     ctx.fillStyle = textColor;
-    ctx.font = 'bold 56px Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, width / 2, height / 2);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+/**
+ * Creates ultra-crisp highway signboards with distinct company header, role, and period
+ */
+export function createHighwaySignTexture(
+  company: string,
+  role: string,
+  period: string,
+  width = 2048,
+  height = 512
+): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // Rich highway overhead blue gradient background
+    const grad = ctx.createLinearGradient(0, 0, 0, height);
+    grad.addColorStop(0, '#0369a1');
+    grad.addColorStop(1, '#075985');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, width, height);
+
+    // White highway sign border
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 18;
+    ctx.strokeRect(16, 16, width - 32, height - 32);
+
+    // Subtle inner accent line
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(34, 34, width - 68, height - 68);
+
+    // 1. Company Name (Top Line - Bold Vibrant Yellow)
+    let compFont = 100;
+    ctx.font = `black ${compFont}px Arial, sans-serif`;
+    while (ctx.measureText(company).width > width - 120 && compFont > 30) {
+      compFont -= 4;
+      ctx.font = `black ${compFont}px Arial, sans-serif`;
+    }
+    ctx.fillStyle = '#fef08a'; // Vibrant yellow
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(company.toUpperCase(), width / 2, height * 0.35);
+
+    // 2. Role & Period (Bottom Line - Crisp White)
+    const subText = `${role}  •  ${period}`;
+    let subFont = 58;
+    ctx.font = `bold ${subFont}px Arial, sans-serif`;
+    while (ctx.measureText(subText).width > width - 120 && subFont > 22) {
+      subFont -= 2;
+      ctx.font = `bold ${subFont}px Arial, sans-serif`;
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(subText, width / 2, height * 0.72);
   }
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;

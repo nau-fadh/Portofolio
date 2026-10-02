@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Project3DData } from './WorldData';
-import { VehicleInputs } from './Vehicle';
 import { sounds } from './SoundEffects';
 
 interface HUDOverlayProps {
@@ -13,7 +12,7 @@ interface HUDOverlayProps {
   onTeleport: (x: number, y: number, z: number) => void;
   onResetCar: () => void;
   onSwitchToClassic: () => void;
-  onSetMobileInputs: (inputs: Partial<VehicleInputs>) => void;
+  onOpenControlsModal: () => void;
 }
 
 export const HUDOverlay: React.FC<HUDOverlayProps> = ({
@@ -24,19 +23,9 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
   onTeleport,
   onResetCar,
   onSwitchToClassic,
-  onSetMobileInputs,
+  onOpenControlsModal,
 }) => {
   const [isMuted, setIsMuted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   const handleToggleSound = () => {
     const muted = sounds.toggleMute();
@@ -125,6 +114,16 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
 
         {/* Global Controls & Mode Switcher */}
         <div className="flex items-center gap-2">
+          {/* Manual Book / Controls Guide Button */}
+          <button
+            onClick={onOpenControlsModal}
+            className="px-3.5 py-2 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 hover:text-white flex items-center gap-1.5 font-bold text-xs transition-all cursor-pointer shadow-lg"
+            title="Buku Panduan Kontrol & Kamera (Manual Book)"
+          >
+            <span>📖</span>
+            <span className="hidden sm:inline">Panduan Kontrol</span>
+          </button>
+
           {/* Horn button */}
           <button
             onClick={handleHonk}
@@ -181,7 +180,7 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* BOTTOM FOOTER: Speedometer & Controls Hint / Mobile Touch Controls */}
+      {/* BOTTOM FOOTER: Speedometer & Controls Guide Banner */}
       {/* ------------------------------------------------------------- */}
       <footer className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-4 w-full">
         {/* Speedometer & Active Zone Card */}
@@ -210,69 +209,27 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
           </div>
         </div>
 
-        {/* Desktop Controls Hint (Keyboard) */}
-        {!isMobile && (
-          <div className="bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 shadow-lg text-[11px] font-mono text-gray-300 flex items-center gap-3 pointer-events-auto">
-            <span className="text-amber-400 font-bold">KONTROL:</span>
-            <span><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">W</kbd><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">A</kbd><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">S</kbd><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">D</kbd> / Panah</span>
-            <span>• <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">SPASI</kbd> Rem</span>
-            <span>• <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">H</kbd> Klakson</span>
-            <span>• <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">R</kbd> Reset</span>
+        {/* Clean Controls Guide Bar */}
+        <div className="bg-black/70 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 shadow-lg text-[11px] font-mono text-gray-300 flex flex-wrap items-center gap-3 pointer-events-auto">
+          <div className="flex items-center gap-1.5">
+            <span className="text-amber-400 font-bold">MENGEMUDI:</span>
+            <span><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">W</kbd><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">A</kbd><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">S</kbd><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">D</kbd></span>
           </div>
-        )}
-
-        {/* Mobile On-Screen Touch Controls (Steering D-Pad & Pedals) */}
-        {isMobile && (
-          <div className="w-full flex items-center justify-between pointer-events-auto pt-2">
-            {/* Steering Left/Right Buttons */}
-            <div className="flex gap-2">
-              <button
-                onTouchStart={() => onSetMobileInputs({ left: true })}
-                onTouchEnd={() => onSetMobileInputs({ left: false })}
-                onMouseDown={() => onSetMobileInputs({ left: true })}
-                onMouseUp={() => onSetMobileInputs({ left: false })}
-                className="w-14 h-14 rounded-2xl bg-black/70 backdrop-blur-md border border-white/20 text-white active:bg-cyan-500/40 active:border-cyan-400 flex items-center justify-center text-xl shadow-2xl transition-all"
-                aria-label="Steer Left"
-              >
-                ◀
-              </button>
-              <button
-                onTouchStart={() => onSetMobileInputs({ right: true })}
-                onTouchEnd={() => onSetMobileInputs({ right: false })}
-                onMouseDown={() => onSetMobileInputs({ right: true })}
-                onMouseUp={() => onSetMobileInputs({ right: false })}
-                className="w-14 h-14 rounded-2xl bg-black/70 backdrop-blur-md border border-white/20 text-white active:bg-cyan-500/40 active:border-cyan-400 flex items-center justify-center text-xl shadow-2xl transition-all"
-                aria-label="Steer Right"
-              >
-                ▶
-              </button>
-            </div>
-
-            {/* Gas & Brake/Reverse Buttons */}
-            <div className="flex gap-2">
-              <button
-                onTouchStart={() => onSetMobileInputs({ backward: true })}
-                onTouchEnd={() => onSetMobileInputs({ backward: false })}
-                onMouseDown={() => onSetMobileInputs({ backward: true })}
-                onMouseUp={() => onSetMobileInputs({ backward: false })}
-                className="w-14 h-14 rounded-2xl bg-rose-950/80 backdrop-blur-md border border-rose-500/30 text-rose-300 active:bg-rose-600/50 flex items-center justify-center font-bold text-xs shadow-2xl transition-all"
-                aria-label="Brake / Reverse"
-              >
-                REM
-              </button>
-              <button
-                onTouchStart={() => onSetMobileInputs({ forward: true })}
-                onTouchEnd={() => onSetMobileInputs({ forward: false })}
-                onMouseDown={() => onSetMobileInputs({ forward: true })}
-                onMouseUp={() => onSetMobileInputs({ forward: false })}
-                className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 text-white active:scale-95 flex items-center justify-center font-black text-sm shadow-[0_0_25px_rgba(6,182,212,0.4)] transition-all border border-cyan-400/40"
-                aria-label="Accelerate"
-              >
-                GAS ▲
-              </button>
-            </div>
+          <span>•</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-cyan-400 font-bold">KAMERA 360°:</span>
+            <span><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">◀</kbd><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">▲</kbd><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">▼</kbd><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">▶</kbd></span>
           </div>
-        )}
+          <span>•</span>
+          <span><kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white font-bold">SPASI</kbd> Rem</span>
+          <span>•</span>
+          <button
+            onClick={onOpenControlsModal}
+            className="text-amber-400 hover:text-amber-300 underline cursor-pointer font-bold ml-1"
+          >
+            Buka Buku Manual 📖
+          </button>
+        </div>
       </footer>
     </div>
   );
