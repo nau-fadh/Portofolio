@@ -12,10 +12,13 @@ import TextReveal from '../components/TextReveal';
 import DinoGame from '../components/DinoGame';
 import Contact from '../components/Contact';
 import ChatWidget from '../components/ChatWidget';
+import RemotionPreloader from '../components/RemotionPreloader';
 
 export default function Home() {
   return (
-    <main className="min-h-screen relative">
+    <>
+      <RemotionPreloader />
+      <main className="min-h-screen relative">
       <CanvasBackground />
       <Hero />
       <Skills />
@@ -28,5 +31,6 @@ export default function Home() {
       <ChatWidget />
       <Header />
     </main>
+    </>
   );
 }
