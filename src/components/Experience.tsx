@@ -1,11 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Player } from '@remotion/player';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
+import {
+  CAREER_CHAPTER_DURATION,
+  CareerJourneyComposition,
+} from './remotion/CareerJourneyComposition';
 
 const Experience: React.FC = () => {
-  const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'work' | 'edu'>('work');
+  const { language, t } = useLanguage();
+  const { theme } = useTheme();
+  const [activeTab, setActiveTab] = useState<'work' | 'edu' | 'reel'>('work');
+  const currentLang: 'id' | 'en' = language === 'id' ? 'id' : 'en';
 
   return (
     <section id="experience" className="py-24 relative overflow-hidden bg-opacity-20" style={{ backgroundColor: 'rgba(22, 33, 62, 0.2)' }}>
@@ -25,10 +33,10 @@ const Experience: React.FC = () => {
 
         {/* TAB TOGGLE NAVIGATION */}
         <div className="flex justify-center mb-16 fade-in visible w-full px-4">
-          <div className="tab-toggle-group p-1 bg-gray-900 bg-opacity-50 rounded-2xl border border-gray-800 flex w-full max-w-sm sm:max-w-lg">
+          <div className="tab-toggle-group p-1 bg-gray-900 bg-opacity-50 rounded-2xl border border-gray-800 flex w-full max-w-md sm:max-w-xl">
             <button
               onClick={() => setActiveTab('work')}
-              className={`tab-toggle-btn flex-1 justify-center cursor-pointer transition-all duration-300 px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 ${
+              className={`tab-toggle-btn flex-1 justify-center cursor-pointer transition-all duration-300 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 ${
                 activeTab === 'work' ? 'tab-active' : 'opacity-60 hover:opacity-100'
               }`}
               aria-label="View Work Experience"
@@ -38,13 +46,23 @@ const Experience: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('edu')}
-              className={`tab-toggle-btn flex-1 justify-center cursor-pointer transition-all duration-300 px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 ${
+              className={`tab-toggle-btn flex-1 justify-center cursor-pointer transition-all duration-300 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 ${
                 activeTab === 'edu' ? 'tab-active' : 'opacity-60 hover:opacity-100'
               }`}
               aria-label="View Education and Organizations"
             >
               <i className="fas fa-graduation-cap text-[10px] sm:text-xs"></i>
               <span>{t('tab_edu')}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('reel')}
+              className={`tab-toggle-btn flex-1 justify-center cursor-pointer transition-all duration-300 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 ${
+                activeTab === 'reel' ? 'tab-active' : 'opacity-60 hover:opacity-100'
+              }`}
+              aria-label="Watch Remotion Career Reel"
+            >
+              <i className="fas fa-film text-[10px] sm:text-xs"></i>
+              <span>{language === 'id' ? 'Video Karir' : 'Career Reel'}</span>
             </button>
           </div>
         </div>
@@ -363,6 +381,46 @@ const Experience: React.FC = () => {
                 </div>
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* REMOTION CAREER REEL PANEL */}
+        {activeTab === 'reel' && (
+          <div id="panel-reel" className="tab-panel max-w-4xl mx-auto">
+            <div className="card rounded-2xl overflow-hidden border border-cyan-500/20 shadow-2xl">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-gray-500/15">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                  <span className="text-xs font-mono font-bold uppercase tracking-widest opacity-80">
+                    REMOTION // CAREER TIMELINE STORY (12s)
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono opacity-60">
+                  2021 → 2026
+                </span>
+              </div>
+              <Player
+                key={`career-reel-${theme}-${language}`}
+                component={CareerJourneyComposition}
+                inputProps={{
+                  theme: theme || 'dark',
+                  language: currentLang,
+                }}
+                durationInFrames={CAREER_CHAPTER_DURATION * 4}
+                fps={30}
+                compositionWidth={1280}
+                compositionHeight={720}
+                autoPlay
+                loop
+                controls
+                initiallyMuted
+                acknowledgeRemotionLicense
+                style={{
+                  width: '100%',
+                  aspectRatio: '16 / 9',
+                }}
+              />
             </div>
           </div>
         )}

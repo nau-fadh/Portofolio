@@ -11,61 +11,14 @@ import {
   useVideoConfig,
 } from 'remotion';
 
-export type IntroTheme = 'dark' | 'light' | 'ocean';
+import { IntroTheme, REMOTION_PALETTES } from './remotionTheme';
+
+export type { IntroTheme };
 
 export interface PortfolioIntroProps {
   theme: IntroTheme;
   language: 'id' | 'en';
 }
-
-const PALETTES: Record<
-  IntroTheme,
-  {
-    bg: string;
-    surface: string;
-    primary: string;
-    secondary: string;
-    accent: string;
-    text: string;
-    muted: string;
-    grid: string;
-    watermark: string;
-  }
-> = {
-  dark: {
-    bg: '#1a1a2e',
-    surface: '#16213e',
-    primary: '#4cc9f0',
-    secondary: '#4361ee',
-    accent: '#ff006e',
-    text: '#f8f9fa',
-    muted: '#94a3b8',
-    grid: 'rgba(76, 201, 240, 0.08)',
-    watermark: 'rgba(255, 255, 255, 0.035)',
-  },
-  light: {
-    bg: '#f3f4f6',
-    surface: '#ffffff',
-    primary: '#0077b6',
-    secondary: '#0096c7',
-    accent: '#ff006e',
-    text: '#1f2937',
-    muted: '#64748b',
-    grid: 'rgba(0, 119, 182, 0.09)',
-    watermark: 'rgba(31, 41, 55, 0.045)',
-  },
-  ocean: {
-    bg: '#0a192f',
-    surface: '#112240',
-    primary: '#06d6a0',
-    secondary: '#118ab2',
-    accent: '#ffd166',
-    text: '#ccd6f6',
-    muted: '#8892b0',
-    grid: 'rgba(6, 214, 160, 0.08)',
-    watermark: 'rgba(204, 214, 246, 0.04)',
-  },
-};
 
 const ROLES = [
   'FULLSTACK DEVELOPER',
@@ -79,7 +32,7 @@ export const PortfolioIntroComposition: React.FC<PortfolioIntroProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
-  const palette = PALETTES[theme] || PALETTES.dark;
+  const palette = REMOTION_PALETTES[theme] || REMOTION_PALETTES.dark;
 
   // Global intro fade-in and subtle outro scale/fade
   const introOpacity = interpolate(frame, [0, 10], [0, 1], {

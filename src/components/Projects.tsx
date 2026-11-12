@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import Image from 'next/image';
+import { ProjectShowreelModal } from './remotion/ProjectShowreelModal';
 
 interface Project {
   id: number;
@@ -17,10 +18,17 @@ interface Project {
 }
 
 const Projects: React.FC = () => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToDisplay, setSlidesToDisplay] = useState(3);
+  const [showreelOpen, setShowreelOpen] = useState(false);
+  const [showreelIndex, setShowreelIndex] = useState<number | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
+
+  const openShowreel = (projectIdx: number | null) => {
+    setShowreelIndex(projectIdx);
+    setShowreelOpen(true);
+  };
 
   const projects: Project[] = [
     {
@@ -146,9 +154,19 @@ const Projects: React.FC = () => {
               FEATURED <span className="gradient-text">PROJECTS</span>
             </h2>
           </div>
-          <p className="max-w-md text-sm leading-relaxed opacity-70 fade-in visible text-gray-400">
-            {t('projects_description')}
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 max-w-xl">
+            <p className="text-sm leading-relaxed opacity-70 fade-in visible text-gray-400">
+              {t('projects_description')}
+            </p>
+            <button
+              type="button"
+              onClick={() => openShowreel(null)}
+              className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/15 to-blue-500/15 hover:from-cyan-500/25 hover:to-blue-500/25 border border-cyan-400/35 text-cyan-400 text-xs font-bold tracking-wide transition-all cursor-pointer shadow-sm"
+            >
+              <i className="fas fa-play text-[10px]"></i>
+              <span>{language === 'id' ? 'Tonton Showreel' : 'Watch Showreel'}</span>
+            </button>
+          </div>
         </div>
 
         {/* CAROUSEL WRAPPER */}
@@ -164,7 +182,7 @@ const Projects: React.FC = () => {
                 transform: `translateX(-${(currentSlide * 100) / slidesToDisplay}%)`,
               }}
             >
-              {projects.map((proj) => {
+              {projects.map((proj, projIdx) => {
                 const title = proj.titleKey ? t(proj.titleKey as any) : proj.titleText;
                 return (
                   <div
@@ -204,7 +222,7 @@ const Projects: React.FC = () => {
                             </span>
                           ))}
                         </div>
-                        <div className="pt-4 border-t border-gray-500 border-opacity-10 flex">
+                        <div className="pt-4 border-t border-gray-500 border-opacity-10 flex items-center justify-between gap-2">
                           {proj.isPrivate ? (
                             <span className="text-xs text-gray-500 italic flex items-center gap-1">
                               <i className="fas fa-lock text-[10px]"></i> Internal Repository
@@ -220,6 +238,16 @@ const Projects: React.FC = () => {
                               <i className="fas fa-arrow-right text-xs transform group-hover:translate-x-1 transition-transform"></i>
                             </a>
                           )}
+
+                          <button
+                            type="button"
+                            onClick={() => openShowreel(projIdx)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/25 transition-all cursor-pointer"
+                            title="Play Remotion Motion Demo"
+                          >
+                            <i className="fas fa-film text-[10px]"></i>
+                            <span>{language === 'id' ? 'Demo Video' : 'Motion Demo'}</span>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -279,6 +307,14 @@ const Projects: React.FC = () => {
         </div>
 
       </div>
+
+      {/* Remotion Interactive Showreel Modal */}
+      <ProjectShowreelModal
+        isOpen={showreelOpen}
+        selectedIndex={showreelIndex}
+        onSelectIndex={(idx) => setShowreelIndex(idx)}
+        onClose={() => setShowreelOpen(false)}
+      />
     </section>
   );
 };
