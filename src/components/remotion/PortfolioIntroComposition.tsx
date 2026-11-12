@@ -266,7 +266,7 @@ export const PortfolioIntroComposition: React.FC<PortfolioIntroProps> = ({
                 display: 'inline-block',
               }}
             />
-            <span>NAUFAL.DEV // SYSTEM BOOT</span>
+            <span>NAUFAL.FADHLURROHMAN</span>
           </div>
           <span>EDITION 2026</span>
         </div>
